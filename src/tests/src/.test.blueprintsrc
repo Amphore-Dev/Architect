@@ -1,0 +1,327 @@
+{
+	"structure": {
+		"customTypes": "customType",
+		"atoms": "atom",
+		"utils": {
+			"type": "util",
+			"prefix": "U",
+			"caseFormat": "kebab-upper",
+			"generateIndex": true
+		},
+		"constants": {
+			"type": "constant",
+			"prefix": "C",
+			"caseFormat": {
+				"name": "snake-upper",
+				"file": "snake",
+				"folder": "kebab"
+			},
+			"generateSubdirs": true
+		},
+		"components": {
+			"type": "indexCheck",
+			"subdirs": {
+				"views": {
+					"type": "view",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"notAnObject": "notAnObject",
+				"none": {
+					"type": "none",
+					"generateDir": false,
+					"generateIndex": false,
+					"generateSubdirs": false,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"genFolder": {
+					"type": "genFolder",
+					"generateDir": true,
+					"generateIndex": false,
+					"generateSubdirs": false,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"genIndexOnly": {
+					"type": "genIndexOnly",
+					"generateDir": false,
+					"generateIndex": true,
+					"generateSubdirs": false,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndIndex": {
+					"type": "folderAndIndex",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": false,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"subDir": {
+					"type": "subDir",
+					"generateDir": false,
+					"generateIndex": false,
+					"generateSubdirs": true,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"subIndexOnly": {
+					"type": "subIndexOnly",
+					"generateDir": false,
+					"generateIndex": false,
+					"generateSubdirs": false,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"subDirAndSubIndex": {
+					"type": "subDirAndSubIndex",
+					"generateDir": false,
+					"generateIndex": false,
+					"generateSubdirs": true,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndSubDir": {
+					"type": "folderAndSubDir",
+					"generateDir": true,
+					"generateIndex": false,
+					"generateSubdirs": true,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndSubIndex": {
+					"type": "folderAndSubIndex",
+					"generateDir": true,
+					"generateIndex": false,
+					"generateSubdirs": false,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndSubDirAndSubIndex": {
+					"type": "folderAndSubDirAndSubIndex",
+					"generateDir": true,
+					"generateIndex": false,
+					"generateSubdirs": true,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"indexAndSubDir": {
+					"type": "indexAndSubDir",
+					"generateDir": false,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"indexAndSubIndex": {
+					"type": "indexAndSubIndex",
+					"generateDir": false,
+					"generateIndex": true,
+					"generateSubdirs": false,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"indexAndSubDirAndSubIndex": {
+					"type": "indexAndSubDirAndSubIndex",
+					"generateDir": false,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndIndexAndSubDir": {
+					"type": "folderAndIndexAndSubDir",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": false,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndIndexAndSubIndex": {
+					"type": "folderAndIndexAndSubIndex",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": false,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"folderAndIndexAndSubDirAndSubIndex": {
+					"type": "folderAndIndexAndSubDirAndSubIndex",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					}
+				},
+				"nested": {
+					"type": "nested",
+					"generateDir": true,
+					"generateIndex": true,
+					"generateSubdirs": true,
+					"generateSubIndex": true,
+					"prefix": "I",
+					"caseFormat": {
+						"name": "camel-upper",
+						"file": "camel",
+						"folder": "kebab"
+					},
+					"subdirs": {
+						"nested2": {
+							"type": "nested2",
+							"generateDir": true,
+							"generateIndex": true,
+							"generateSubdirs": true,
+							"generateSubIndex": true,
+							"prefix": "I",
+							"caseFormat": {
+								"name": "camel-upper",
+								"file": "camel",
+								"folder": "kebab"
+							},
+							"subdirs": {
+								"nested3": {
+									"type": "nested3",
+									"generateDir": false,
+									"generateIndex": false,
+									"generateSubdirs": false,
+									"generateSubIndex": false,
+									"prefix": "I",
+									"caseFormat": {
+										"name": "camel-upper",
+										"file": "camel",
+										"folder": "kebab"
+									},
+									"subdirs": {
+										"ultraNested": {
+											"type": "ultraNested",
+											"generateDir": true,
+											"generateIndex": false,
+											"generateSubdirs": false,
+											"generateSubIndex": false,
+											"prefix": "I",
+											"caseFormat": {
+												"name": "camel-upper",
+												"file": "camel",
+												"folder": "kebab"
+											}
+										},
+										"ultraNestedWithIndex": {
+											"type": "ultraNestedWithIndex",
+											"generateDir": true,
+											"generateIndex": true,
+											"generateSubdirs": true,
+											"generateSubIndex": true,
+											"prefix": "I",
+											"caseFormat": {
+												"name": "camel-upper",
+												"file": "camel",
+												"folder": "kebab"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"screens": "screen",
+				"conflicts": "conflic",
+				"conflicts2": "conflic"
+			},
+			"generateDir": true
+		}
+	},
+	"defaultStructureItem": {
+		"generateIndex": false
+	}
+}

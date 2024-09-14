@@ -1,0 +1,11 @@
+{
+	"language": "react-typescript",
+	"structure": {
+		"customTypes": "customType",
+		"atoms": "atom",
+		"utils": "util"
+	},
+	"builders": [
+		"src/tests/src/builders"
+	]
+}

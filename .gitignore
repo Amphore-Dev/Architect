@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.DS_Store
+example/src
+coverage
+TESTS_SRC
+STRUCTURE_TESTS_SRC
+logs.txt

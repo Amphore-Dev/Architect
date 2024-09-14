@@ -1,0 +1,10 @@
+{
+	"structure": {
+		"customTypes": "customType",
+		"atoms": "atom",
+		"utils": "util"
+	},
+	"blueprints": [
+		"src/tests/src/blueprints"
+	]
+}
