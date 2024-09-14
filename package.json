@@ -7,7 +7,7 @@
 	"description": "A CLI tool to generate React components",
 	"main": "dist/index.js",
 	"bin": {
-		"blueprint": "./dist/index.js"
+		"architect": "./dist/index.js"
 	},
 	"scripts": {
 		"start": "node dist/index.js",

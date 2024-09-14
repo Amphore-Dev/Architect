@@ -21,4 +21,5 @@ export type TBuildPaths = {
 	outdirPath: string;
 	fileOutputPath: string;
 	outName: string;
+	indexes: string[];
 };

@@ -90,13 +90,15 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 			outdirPath,
 			fileOutputPath,
 			outName,
+			indexes: [],
 		});
 	}
 
 	return checkFileConflict(fileOutputPath).then(
 		() => {
+			let indexes: string[] = [];
 			try {
-				generateFolders(
+				indexes = generateFolders(
 					outdirPath,
 					config,
 					outdir,
@@ -104,6 +106,7 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 					folderName,
 					fileName
 				);
+				console.log("GEN indexes", indexes);
 			} catch (e) {
 				errorLog(e);
 				process.exit(FOLDER_GENERATION_ERROR);
@@ -112,6 +115,7 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 				outdirPath,
 				fileOutputPath,
 				outName,
+				indexes,
 			};
 		},
 		() => {
@@ -129,6 +133,7 @@ function generateFolders(
 	folderName: string,
 	fileName: string
 ) {
+	const indexes: string[] = [];
 	const segments = outdir.segments;
 	const structure = config.structure;
 
@@ -207,6 +212,7 @@ function generateFolders(
 
 			// Add the import to the index file
 			addImport(indexPath, content);
+			indexes.push(indexPath);
 
 			// Update the last index
 			if (!lastIndex && !generateSubIndex) {
@@ -224,6 +230,8 @@ function generateFolders(
 			lastIndex = segment + "/" + (!lastIndex ? fileName : lastIndex);
 		}
 	});
+
+	return indexes;
 }
 
 const addImport = (path: string, content: string) => {
@@ -240,6 +248,4 @@ const addImport = (path: string, content: string) => {
 		lines.push(content);
 		fs.writeFileSync(path, lines.sort().join("\n"), "utf-8");
 	}
-
-	return path.replace("/index.ts", "");
 };

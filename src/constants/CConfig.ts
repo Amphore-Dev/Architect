@@ -14,10 +14,12 @@ export const DEFAULT_CONFIG: TConfig = {
 				pages: "page",
 			},
 			generateSubdirs: true,
+			generateSubIndex: true,
 		},
 		utils: {
 			type: "util",
 			prefix: "U",
+			generateIndex: true,
 		},
 		constants: {
 			type: "constant",
@@ -36,6 +38,7 @@ export const DEFAULT_CONFIG: TConfig = {
 		},
 	},
 	defaultStructureItem: {
-		generateIndex: true,
+		// generateIndex: true,
+		// generateSubIndex: true,
 	},
 };

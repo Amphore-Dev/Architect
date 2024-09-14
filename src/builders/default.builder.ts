@@ -9,7 +9,7 @@ function DefaultBuilder(args: TBuilderArgs) {
 	const { blueprint } = args;
 
 	return prepareBuild(args).then((paths) => {
-		const { fileOutputPath, outName } = paths;
+		const { fileOutputPath, outName, indexes} = paths;
 
 		const replacedBlueprint = blueprint.content.replace(
 			/__NAME__/g,
@@ -19,7 +19,7 @@ function DefaultBuilder(args: TBuilderArgs) {
 		fs.writeFileSync(fileOutputPath, replacedBlueprint);
 
 		// TOFIX: return the correct paths
-		return [fileOutputPath].filter((b) => b);
+		return [fileOutputPath, ...indexes].filter((b) => b);
 	});
 }
 
