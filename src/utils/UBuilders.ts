@@ -85,16 +85,12 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 		`${fileName}${blueprint.extension ? `.${blueprint.extension}` : ""}`
 	);
 
-	if (config.options?.yes || config.options?.force) {
-		return Promise.resolve({
-			outdirPath,
-			fileOutputPath,
-			outName,
-			indexes: [],
-		});
-	}
+	const prom = new Promise((resolve, reject) => {
+		if (config.options?.yes || config.options?.force) return resolve(true);
+		return checkFileConflict(fileOutputPath).then(resolve, reject);
+	});
 
-	return checkFileConflict(fileOutputPath).then(
+	return prom.then(
 		() => {
 			let indexes: string[] = [];
 			try {
@@ -106,7 +102,6 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 					folderName,
 					fileName
 				);
-				console.log("GEN indexes", indexes);
 			} catch (e) {
 				errorLog(e);
 				process.exit(FOLDER_GENERATION_ERROR);

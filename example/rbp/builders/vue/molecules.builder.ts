@@ -1,6 +1,6 @@
-const DEFA = (args) => {
-	console.log("CUSTOM VUE MOLECULE BUILDER", args);
+/* eslint-disable */
 
+const DEFA = (args) => {
 	return ["CUSTOM VUE MOLECULE BUILDER"];
 };
 

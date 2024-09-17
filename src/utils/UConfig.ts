@@ -6,7 +6,7 @@ import { TConfig, TOptions } from "../types";
 import { errorLog, infoLog } from "./ULogs";
 
 export function loadConfig(
-	_configPath: string = ".blueprintsrc",
+	_configPath: string = "architect.config.json",
 	options: TOptions
 ): TConfig {
 	const configPath = path.resolve(process.cwd(), _configPath);

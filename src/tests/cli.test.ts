@@ -8,7 +8,10 @@ import {
 	INVALID_CONFIG_FILE,
 	SUCCESS_CODE,
 } from "../constants";
-import { CUSTOM_UTIL_BUILDER_REPLACED } from "./src/constants/CTests";
+import {
+	CUSTOM_COMPONENT_BLUEPRINT_REPLACED,
+	CUSTOM_UTIL_BUILDER_REPLACED,
+} from "./src/constants/CTests";
 
 describe("Command: blueprint", () => {
 	const OUT_DIR = "src/tests/TESTS_SRC";
@@ -182,7 +185,7 @@ describe("Command: blueprint", () => {
 		});
 	});
 
-	it("Priority Check - Custom Builder ", (done) => {
+	it("Priority Check - Custom Builder", (done) => {
 		spawn("node", [
 			cliPath,
 			"-c",
@@ -203,6 +206,41 @@ describe("Command: blueprint", () => {
 					"utf8"
 				);
 				expect(content).toContain(CUSTOM_UTIL_BUILDER_REPLACED);
+				expect(code).toBe(SUCCESS_CODE);
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
+	it("Priority Check - Custom Blueprint", (done) => {
+		spawn("node", [
+			cliPath,
+			"-c",
+			__dirname + "/src/.test.blueprints.blueprintsrc",
+			"-o",
+			OUT_DIR,
+			"-f",
+			"molecule",
+			"CUSTOM_MOLECULE_BLUEPRINT",
+		]).on("exit", (code) => {
+			try {
+				if (
+					!fs.existsSync(
+						OUT_DIR +
+							"/components/molecules/CUSTOM_MOLECULE_BLUEPRINT.tsx"
+					)
+				) {
+					throw new Error("Component not created");
+				}
+
+				const content = fs.readFileSync(
+					OUT_DIR +
+						"/components/molecules/CUSTOM_MOLECULE_BLUEPRINT.tsx",
+					"utf8"
+				);
+				expect(content).toContain(CUSTOM_COMPONENT_BLUEPRINT_REPLACED);
 				expect(code).toBe(SUCCESS_CODE);
 				done();
 			} catch (error) {

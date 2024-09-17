@@ -2,7 +2,16 @@
 	"structure": {
 		"customTypes": "customType",
 		"atoms": "atom",
-		"utils": "util"
+		"utils": "util",
+		"components": {
+			"type": "component",
+			"subdirs": {
+				"molecules": "molecule",
+				"organisms": "organism",
+				"templates": "template",
+				"pages": "page"
+			}
+		}
 	},
 	"blueprints": [
 		"src/tests/src/blueprints"

@@ -1,5 +1,5 @@
-function AtomBuilder(args) {
-	console.log("CUSTOM REACT ATOM BUILDER", args);
+/* eslint-disable */
+function AtomBuilder(args: any) {
 	return ["CUSTOM REACT ATOM BUILDER"];
 }
 
