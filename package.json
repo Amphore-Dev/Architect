@@ -1,13 +1,16 @@
 {
-	"name": "architect",
-	"version": "1.0.0-beta-3",
-	"repository": "https://github.com/Amphore-Dev/Architect.git",
+	"name": "@amphore-dev/architect",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Amphore-Dev/Architect.git"
+	},
 	"author": "Simeon-Ferrara <pixono26@gmail.com>",
 	"license": "MIT",
 	"description": "A CLI tool to generate React components",
 	"main": "dist/index.js",
 	"bin": {
-		"architect": "./dist/index.js"
+		"architect": "dist/index.js"
 	},
 	"scripts": {
 		"start": "node dist/index.js",
@@ -46,5 +49,19 @@
 		"prettier": "^3.3.3",
 		"ts-jest": "^29.2.5",
 		"typescript-eslint": "^8.2.0"
-	}
+	},
+	"directories": {
+		"example": "example"
+	},
+	"keywords": [
+		"CLI",
+		"blueprint",
+		"file",
+		"folder",
+		"generator"
+	],
+	"bugs": {
+		"url": "https://github.com/Amphore-Dev/Architect/issues"
+	},
+	"homepage": "https://github.com/Amphore-Dev/Architect#readme"
 }

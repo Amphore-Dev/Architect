@@ -2,7 +2,7 @@ import { TStructure, TStructureItem } from "./TStructure";
 
 export type TOptions = {
 	config?: string;
-	yes?: boolean;
+
 	force?: boolean;
 	output?: string;
 };

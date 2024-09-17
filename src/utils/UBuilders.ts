@@ -86,7 +86,7 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 	);
 
 	const prom = new Promise((resolve, reject) => {
-		if (config.options?.yes || config.options?.force) return resolve(true);
+		if (config.options?.force) return resolve(true);
 		return checkFileConflict(fileOutputPath).then(resolve, reject);
 	});
 

@@ -33,8 +33,10 @@ program
 	.arguments("<componentType> <componentName>")
 	.description("Create a new component")
 	.option("-c, --config <path>", "Specify a custom configuration file")
-	.option("-y, --yes", "Skip prompts and use default values")
-	.option("-f, --force", "Overwrite existing files")
+	.option(
+		"-f, --force",
+		"Skip prompts, overwrite existing files and use default values"
+	)
 	.option("-o, --output <path>", "Specify the output directory")
 	.action(
 		(componentType: string, componentName: string, options: TOptions) => {
