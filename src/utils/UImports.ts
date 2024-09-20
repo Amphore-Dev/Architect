@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { TBuilderImport, TConfig, TImportPathResult } from "../types";
-import { getFileFormat } from "./UFiles";
+import { getFileLanguage } from "./UFiles";
 
 export function compileAndLoadUserTsFile(userTsFilePath: string) {
 	const absolutePath = path.resolve(process.cwd(), userTsFilePath);
@@ -137,7 +137,7 @@ export const generateCustomPaths = (
 	}
 
 	paths.forEach((file) => {
-		ret.push(...generateFormatPaths(getFileFormat(config), file));
+		ret.push(...generateFormatPaths(getFileLanguage(config), file));
 		ret.push(file);
 	});
 

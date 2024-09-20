@@ -41,22 +41,26 @@ The configuration file should be named `architect.config.json` and placed in the
 
 ### Configuration File
 
-| Key                  | Type     | Description                                                            |
-| -------------------- | -------- | ---------------------------------------------------------------------- |
-| outputDir            | string   | The root directory where files should be generated.                    |
-| language             | string   | The language of the project. (e.g., TypeScript, JavaScript, PHP, etc.) |
-| structure            | object   | The structure of the project.                                          |
-| blueprints           | string[] | Paths of blueprints for generating files.                              |
-| builders             | string[] | Paths of builders for constructing the file and folder structure.      |
-| options              | object   | Additional options for the CLI.                                        |
-| defaultStructureItem | object   | Default options for each structure item.                               |
+| Key                  | Type     | Description                                                                |
+| -------------------- | -------- | -------------------------------------------------------------------------- |
+| outputDir            | string   | The root directory where files should be generated.                        |
+| language             | string   | The language of the project. (e.g., TypeScript, JavaScript, PHP, etc.)     |
+| structure            | object   | The structure of the project.                                              |
+| blueprints           | string[] | Relative paths of blueprints for generating files.                         |
+| builders             | string[] | Relative paths of builders for constructing the file and folder structure. |
+| options              | object   | Additional options for the CLI.                                            |
+| defaultStructureItem | object   | Default options for each structure item.                                   |
 
 Here is an example configuration file in JSON format:
 
 ```json
-// architect.config.json
 {
 	"outputDir": "src",
+	"blueprints": ["architect/blueprints"],
+	"builders": ["architect/builders"],
+	"defaultStructureItem": {
+		"caseFormat": "pascal"
+	},
 	"language": "react-typescript",
 	"structure": {
 		"components": {
@@ -65,11 +69,15 @@ Here is an example configuration file in JSON format:
 				"atoms": "atom",
 				"molecules": "molecule",
 				"organisms": "organism",
-				"templates": "template",
-				"pages": "page"
+				"templates": "template"
 			},
 			"generateSubdirs": true,
 			"generateSubIndex": true
+		},
+		"pages": {
+			"type": "page",
+			"generateIndex": true,
+			"generateSubdirs": true
 		},
 		"utils": {
 			"type": "util",
@@ -81,7 +89,8 @@ Here is an example configuration file in JSON format:
 			"prefix": "C",
 			"caseFormat": {
 				"name": "snake-upper"
-			}
+			},
+			"generateIndex": true
 		},
 		"types": {
 			"type": "type",
@@ -91,11 +100,55 @@ Here is an example configuration file in JSON format:
 			"type": "hook",
 			"prefix": "use"
 		}
-	},
-	"defaultStructureItem": {
-		"caseFormat": "pascal"
 	}
 }
+```
+
+this configuration file will generate files and folders in the following structure:
+
+```bash
+src/
+│
+├── components/
+│   ├── Atoms/
+│   │   ├── index.ts
+│   │   └── MyAtom/
+│   │       └── MyAtom.tsx
+│   │
+│   ├── Molecules/
+│   │   ├── index.ts
+│   │   └── MyMolecule/
+│   │       └── MyMolecule.tsx
+│   │
+│   ├── Organisms/
+│   │   ├── index.ts
+│   │   └── MyOrganism/
+│   │       └── MyOrganism.tsx
+│   │
+│   ├── Templates/
+│   ├── index.ts
+│   └── MyTemplate/
+│       └── MyTemplate.tsx
+│
+├── pages/
+│   ├── index.ts
+│   └── MyPage/
+│       └── MyPage.tsx
+│
+├── utils/
+│   ├── index.ts
+│   └── UMyUtil.ts
+│
+├── constants/
+│   ├── index.ts
+│   └── CMyConstant.ts # file content will be: CMY_CONSTANT = 'my_constant';
+│
+├── types/
+│   ├── index.ts
+│   └── TMyType.ts
+│
+└── hooks/
+	└── useMyHook.ts
 ```
 
 ### Structure object
@@ -155,37 +208,52 @@ If a structure item does not have a specific option, it will use the default opt
 
 ## Blueprints and Builders
 
-### Blueprints
-
-Blueprints are templates for generating files and folders. They are organized into different categories
-based on the framework or language (e.g., React, Vue, PHP, etc.).
+Blueprints and builders are the core components of the CLI. They define the templates and logic for generating files and folders.
 
 ```bash
-# Example Blueprint Directory Structure
-blueprints/
-│
-├── react/
-│   ├── utils.bp.js
-│   ├── page.bp.js
-│   │
-│   ├-─ typescript/
-│   │    ├── atoms.bp.tsx
-│   │    └── components.bp.tsx
-│	│
-│	└-- native/
-│	     ├── components.bp.js
-│	     │
-│	     └-─ typescript/
-│	     	  ├── atoms.bp.tsx
-│	     	  └── components.bp.tsx
-│
-└── vue/
-	├── components.bp.vue
-	└── page.bp.vue
+# Example Directory Structure
+
+├── src/
+└── architect/
+	├──blueprints/
+	│	│
+	│	├─ react/
+	│	│   ├── utils.bp.js
+	│	│   ├── page.bp.js
+	│	│   │
+	│	│   ├-─ typescript/
+	│	│   │    ├── atoms.bp.tsx
+	│	│   │    └── components.bp.tsx
+	│	│	│
+	│	│	└-- native/
+	│	│	     ├── components.bp.js
+	│	│	     │
+	│	│	     └-─ typescript/
+	│	│	    	  ├── atoms.bp.tsx
+	│	│	    	  └── components.bp.tsx
+	│	│
+	│	└── vue/
+	│		├── components.bp.vue
+	│		└── page.bp.vue
+	│
+	└──builders/
+		├─ default.builder.ts
+		│
+		└─ react/
+		     ├── default.builder.ts
+		     ├── atom.builder.ts
+			 │
+		     └── typescript/
+		     	└── default.builder.ts
 ```
 
 The name of the blueprint file should be in the following format: `<type>.bp.<ext>`, where `<type>` is the type of the blueprint
 (e.g., component, page, etc.), and `<ext>` is the file extension (e.g., tsx, php, etc.).
+
+### Blueprints
+
+Blueprints are templates for generating files and folders. They are organized into different categories
+based on the framework or language (e.g., React, Vue, PHP, etc.).
 
 Blueprints can contain placeholders that will be replaced with the actual values during the generation process.
 

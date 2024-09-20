@@ -15,7 +15,11 @@ import {
 	TStructureItem,
 	TStructurePathResult,
 } from "../types";
-import { checkFileConflict, getFileFormat } from "./UFiles";
+import {
+	checkFileConflict,
+	getDefaultExtension,
+	getFileLanguage,
+} from "./UFiles";
 import { flatAndKeepLastChild } from "./UFlat";
 import {
 	generateCustomPaths,
@@ -27,9 +31,12 @@ import { formatName } from "./UStrings";
 
 export function getBuilderPath(pathSegments: string[], config: TConfig) {
 	const defaultPath = path.join(__dirname, "..", "builders");
+	const pluginsPath = path.join(__dirname, "../..", "plugins/builders");
+
 	const paths = [
 		...generateCustomPaths(config, config.builders),
-		...generateFormatPaths(getFileFormat(config), defaultPath),
+		...generateCustomPaths(config, [pluginsPath]),
+		...generateFormatPaths(getFileLanguage(config), defaultPath),
 	];
 
 	return getImportPaths<TBuilderSearchResult>({
@@ -42,8 +49,8 @@ export function getBuilderPath(pathSegments: string[], config: TConfig) {
 			isCustom,
 		}),
 		defaultImport: {
-			path: defaultPath + "/default.builder.js",
-			name: "default.builder.js",
+			path: defaultPath + "/default.builder.ts",
+			name: "default.builder.ts",
 			isCustom: false,
 		},
 	});
@@ -74,7 +81,7 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 	// Construct the output directory path based on the resolved structure item
 	const outdirPath = path.join(
 		process.cwd(),
-		config.options?.output ?? config.outputDir,
+		config.options?.output ?? config.outputDir ?? "",
 		outdir.path,
 		outdir.generateSubdirs || outdir.generateSubIndex ? folderName : ""
 	);
@@ -138,15 +145,13 @@ function generateFolders(
 
 	// Reverse the segments to start from the root
 	const revSegments = segments.slice().reverse();
-
 	// Flatten the structure to easily access the structure item for each segment
 	const flatStructure = flatAndKeepLastChild(structure);
-
 	// Create the output directory if it doesn't exist
 	fs.mkdirSync(outdirPath, { recursive: true });
 
 	// fallback to default structure item if no options are provided for the current segment
-	const defaultStructureItem = (structure.defaultStructureItem ||
+	const defaultStructureItem = (structure?.defaultStructureItem ||
 		{}) as TStructureItem;
 
 	// last index is used to keep track of the last index file created, so we can export it in the parent index file
@@ -184,8 +189,15 @@ function generateFolders(
 		// if it should generate an index file for the current segment
 		if (generateIndex) {
 			// Get the path to the current index file
-			const currentRootPath = path.join(config.outputDir, ...currentRoot);
-			const indexPath = path.join(currentRootPath, "index.ts");
+			const currentRootPath = path.join(
+				config.outputDir ?? "",
+				...currentRoot
+			);
+			const indexExtension = getDefaultExtension(config);
+			const indexPath = path.join(
+				currentRootPath,
+				`index${indexExtension ? `.${indexExtension}` : ""}`
+			);
 
 			let content = "";
 

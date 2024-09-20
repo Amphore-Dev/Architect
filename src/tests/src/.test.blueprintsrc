@@ -1,4 +1,5 @@
 {
+	"language": "react-typescript",
 	"structure": {
 		"customTypes": "customType",
 		"atoms": "atom",
@@ -323,5 +324,8 @@
 	},
 	"defaultStructureItem": {
 		"generateIndex": false
-	}
+	},
+	"plugins": [
+		"@amphore-dev/architect-plugin-react"
+	]
 }

@@ -7,7 +7,7 @@ import { errorLog, infoLog } from "./ULogs";
 
 export function loadConfig(
 	_configPath: string = "architect.config.json",
-	options: TOptions
+	options: TOptions = {}
 ): TConfig {
 	const configPath = path.resolve(process.cwd(), _configPath);
 
@@ -22,7 +22,8 @@ export function loadConfig(
 				outputDir:
 					options.output ??
 					userConfig.outputDir ??
-					DEFAULT_CONFIG.outputDir,
+					DEFAULT_CONFIG.outputDir ??
+					"",
 			};
 		} catch {
 			errorLog(`Error parsing config file '${_configPath}'`);

@@ -7,5 +7,8 @@
 	},
 	"builders": [
 		"src/tests/src/builders"
+	],
+	"plugins": [
+		"@amphore-dev/architect-plugin-react"
 	]
 }

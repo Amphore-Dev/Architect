@@ -15,5 +15,9 @@
 	},
 	"blueprints": [
 		"src/tests/src/blueprints"
+	],
+	"language": "react-typescript",
+	"plugins": [
+		"@amphore-dev/architect-plugin-react"
 	]
 }

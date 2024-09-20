@@ -3,8 +3,8 @@ import { TStructure, TStructureItem, TStructurePathResult } from "../types";
 export function resolveStructurePath(
 	structure: TStructure,
 	type: string,
-	currentPath: string = "",
-	folderConfig: TStructureItem = {} as TStructureItem
+	folderConfig: TStructureItem = {} as TStructureItem,
+	currentPath: string = ""
 ): TStructurePathResult[] {
 	const returns: TStructurePathResult[] = [];
 
@@ -38,10 +38,10 @@ export function resolveStructurePath(
 			const result = resolveStructurePath(
 				entry.subdirs as TStructure,
 				type,
-				`${currentPath}/${key}`,
 				{
 					...cleanedConfig,
-				}
+				},
+				`${currentPath}/${key}`
 			);
 			if (result) returns.push(...result);
 		}

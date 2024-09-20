@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/architect",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Amphore-Dev/Architect.git"
@@ -32,6 +32,7 @@
 		"typescript": "^5.5.4"
 	},
 	"devDependencies": {
+		"@amphore-dev/architect-plugin-react": "^1.0.4",
 		"@eslint/js": "^9.9.1",
 		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
 		"@types/commander": "^2.12.2",
