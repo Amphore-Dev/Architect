@@ -3,7 +3,10 @@ import inquirer from "inquirer";
 import { Answers } from "inquirer/dist/cjs/types/types";
 import logger from "node-color-log";
 
-import { TConfig, TLanguageName } from "../types";
+import PluginsManager from "../classes/PluginsManagerClass";
+import { CPLUGIN_PREFIX } from "../constants";
+import { TConfig } from "../types";
+import { TPluginExtensionsMapping } from "../types/TPlugins";
 
 export const checkFileConflict = (path: string): Promise<boolean> => {
 	if (!fs.existsSync(path)) {
@@ -26,8 +29,6 @@ export const checkFileConflict = (path: string): Promise<boolean> => {
 				},
 				choices: ["Yes", "No"],
 				name: "overwrite",
-				prefix: "ddd",
-				suffix: "ddd",
 				default: "No",
 			},
 		] as Answers)
@@ -41,26 +42,34 @@ export const checkFileConflict = (path: string): Promise<boolean> => {
 	return outdirProm;
 };
 
-export const getFileFormat = (config: TConfig): string => {
-	const { language: format } = config;
-	return typeof format === "string" ? format : format.name;
+export const getFileLanguage = (config: TConfig): string => {
+	const { language } = config;
+	return typeof language === "string" ? language : (language?.name ?? "");
 };
 
 export const getDefaultExtension = (config: TConfig): string => {
-	const format = getFileFormat(config);
+	const language = getFileLanguage(config);
 
-	const extensionMapping: { [key in TLanguageName]: string } = {
+	const plugins = PluginsManager.getPlugins();
+
+	const extensionMapping: TPluginExtensionsMapping = {
 		javascript: "js",
-		react: "js",
-		"react-typescript": "ts",
-		"react-native": "js",
-		"react-native-typescript": "ts",
-		php: "php",
 	};
 
+	plugins?.forEach((plugin) => {
+		if (plugin.extensions) {
+			if (typeof plugin.extensions === "string") {
+				extensionMapping[plugin.name.replace(CPLUGIN_PREFIX, "")] =
+					plugin.extensions;
+			} else {
+				Object.assign(extensionMapping, plugin.extensions);
+			}
+		}
+	});
+
 	const res = Object.keys(extensionMapping).find((key) =>
-		format.includes(key)
+		language.includes(key)
 	);
 
-	return res ? extensionMapping[res] : format;
+	return res ? extensionMapping[res] : "js";
 };

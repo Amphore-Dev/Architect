@@ -7,6 +7,10 @@ export const flatAndKeepLastChild = <T>(obj: T, delimiter = ".") => {
 
 	const result: TFlatObj = {};
 
+	if (!flatObj) {
+		return result;
+	}
+
 	Object.keys(flatObj).forEach((key) => {
 		const value = flatObj[key];
 		const lastDotIndex = key.lastIndexOf(delimiter);

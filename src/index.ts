@@ -4,6 +4,7 @@ import inquirer from "inquirer";
 import { Answers } from "inquirer/dist/cjs/types/types";
 
 import { version } from "../package.json";
+import PluginsManager from "./classes/PluginsManagerClass";
 import {
 	BUILDER_LOAD_ERROR,
 	INVALID_COMPONENT_TYPE,
@@ -42,17 +43,25 @@ program
 		(componentType: string, componentName: string, options: TOptions) => {
 			const config = loadConfig(options.config as string, options);
 			const outdirs = resolveStructurePath(
-				config.structure,
+				config.structure ?? {
+					[componentType]: componentType,
+				},
 				componentType,
-				"",
 				config.defaultStructureItem
 			);
 
 			let outdirProm = Promise.resolve(outdirs[0]);
-			if (outdirs.length === 0) {
+			if (outdirs.length === 0 && config.structure) {
 				errorLog(`Invalid component type: ${componentType}`);
 				process.exit(INVALID_COMPONENT_TYPE);
+			} else if (!config.structure) {
+				outdirProm = Promise.resolve({
+					type: "default",
+					segments: ["default"],
+					path: "/",
+				});
 			}
+
 			if (outdirs.length > 1) {
 				outdirProm = inquirer
 					.prompt([
@@ -121,4 +130,6 @@ program
 		}
 	);
 
-program.parse(process.argv);
+PluginsManager.loadPlugins().then(() => {
+	program.parse(process.argv);
+});

@@ -3,7 +3,7 @@ import * as path from "path";
 
 import { TConfig } from "../types";
 import { TBlueprintSearchResult } from "../types/TBlueprint";
-import { getDefaultExtension, getFileFormat } from "./UFiles";
+import { getDefaultExtension, getFileLanguage } from "./UFiles";
 import {
 	generateCustomPaths,
 	generateFormatPaths,
@@ -16,10 +16,12 @@ export function getBlueprintPath(
 ): TBlueprintSearchResult | undefined {
 	// Concatenate the default blueprint path with the user-defined blueprint paths
 	const defaultPath = path.join(__dirname, "..", "blueprints");
+	const pluginsPath = path.join(__dirname, "../..", "plugins/blueprints");
 
 	const paths = [
 		...generateCustomPaths(config, config.blueprints),
-		...generateFormatPaths(getFileFormat(config), defaultPath),
+		...generateCustomPaths(config, [pluginsPath]),
+		...generateFormatPaths(getFileLanguage(config), defaultPath),
 	];
 
 	return getImportPaths<TBlueprintSearchResult>({
@@ -39,7 +41,7 @@ export function getBlueprintPath(
 
 const getDefaultBlueprint = (config: TConfig) => {
 	const defaultPath = [__dirname, "..", "blueprints"].join(path.sep);
-	const format = getFileFormat(config);
+	const format = getFileLanguage(config);
 	const extension = getDefaultExtension(config);
 
 	// Split the format by hyphens and use the parts as folder paths
@@ -68,7 +70,7 @@ const getDefaultBlueprint = (config: TConfig) => {
 		extension:
 			typeof config.language === "string"
 				? extension
-				: config.language.extension,
+				: (config.language?.extension ?? ""),
 		isCustom: false,
 	};
 };

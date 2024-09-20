@@ -22,7 +22,8 @@ export function loadConfig(
 				outputDir:
 					options.output ??
 					userConfig.outputDir ??
-					DEFAULT_CONFIG.outputDir,
+					DEFAULT_CONFIG.outputDir ??
+					"",
 			};
 		} catch {
 			errorLog(`Error parsing config file '${_configPath}'`);
