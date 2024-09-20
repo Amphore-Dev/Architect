@@ -3,7 +3,7 @@ import path from "path";
 
 import { CPLUGIN_PREFIX, PLUGIN_REGISTER_ERROR } from "../constants";
 import { TArchitectPlugin, TArchitectPluginAPI } from "../types/TPlugins";
-import { errorLog } from "../utils";
+import { errorLog, infoLog } from "../utils";
 
 class ArchitectPlugin implements TArchitectPluginAPI {
 	config = {};
@@ -21,7 +21,6 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 	}
 
 	// Registers blueprints by copying from the plugin's source path to the Architect's destination path
-	// Registers blueprints by copying from the plugin's source path to the Architect's destination path
 	public registerBlueprints() {
 		try {
 			// Use require.resolve to resolve the plugin's path inside node_modules
@@ -30,12 +29,7 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 				"/../blueprints";
 
 			// Resolve the destination path relative to the current working directory (Architect's project)
-			const absoluteDestinationPath = path.resolve(
-				process.cwd(),
-				"plugins",
-				"blueprints",
-				this.outdir
-			);
+			const absoluteDestinationPath = this.genOutdirPath("blueprints");
 
 			// Copy the blueprints from the plugin to the project
 			this.copyFiles(absoluteSourcePath, absoluteDestinationPath);
@@ -50,19 +44,10 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 
 	public registerBuilders() {
 		try {
-			// Use require.resolve to resolve the plugin's path inside node_modules
 			const absoluteSourcePath =
 				path.dirname(require.resolve(this.name)) + "/../builders";
+			const absoluteDestinationPath = this.genOutdirPath("builders");
 
-			// Resolve the destination path relative to the current working directory (Architect's project)
-			const absoluteDestinationPath = path.resolve(
-				process.cwd(),
-				"plugins",
-				"builders",
-				this.outdir
-			);
-
-			// Copy the builders from the plugin to the project
 			this.copyFiles(absoluteSourcePath, absoluteDestinationPath);
 		} catch (error) {
 			errorLog(
@@ -73,12 +58,14 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 		}
 	}
 
+	/* eslint-disable @typescript-eslint/no-unused-vars */
 	public registerCommand(
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		commandName: string,
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		handler: (args: object) => void
-	) {}
+	) {
+		infoLog("Registering a command is not yet supported");
+	}
+	/* eslint-enable @typescript-eslint/no-unused-vars */
 
 	private copyFiles(sourcePath: string, destinationPath: string) {
 		// Ensure the destination directory exists
@@ -98,6 +85,10 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 				fs.copyFileSync(sourceFilePath, destFilePath);
 			}
 		});
+	}
+
+	private genOutdirPath(type: string) {
+		return path.resolve(__dirname, "..", "plugins", type, this.outdir);
 	}
 }
 

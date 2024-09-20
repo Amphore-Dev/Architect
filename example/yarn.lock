@@ -2,6 +2,24 @@
 # yarn lockfile v1
 
 
+"@amphore-dev/architect-plugin-react@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@amphore-dev/architect-plugin-react/-/architect-plugin-react-1.0.4.tgz#f0f12f99cc3b6aaeee71b54095f5c5a461214d02"
+  integrity sha512-FKdVdKOu+jjOSuhxae0+EGQfdfr6p2PeOZHH5i88krE0YRtagOdGZgFjXOTmR1Sp1ZE2ZzP9tuVAuHPZqzJ5WA==
+  dependencies:
+    "@amphore-dev/architect" "^1.0.0"
+
+"@amphore-dev/architect@../", "@amphore-dev/architect@^1.0.0":
+  version "1.1.0"
+  dependencies:
+    commander "^12.1.0"
+    esbuild "^0.23.1"
+    import-sync "^2.2.2"
+    inquirer "^10.1.8"
+    node-color-log "^12.0.1"
+    safe-flat "^2.1.0"
+    typescript "^5.5.4"
+
 "@esbuild/aix-ppc64@0.23.1":
   version "0.23.1"
   resolved "https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.23.1.tgz#51299374de171dbd80bb7d838e1cfce9af36f353"
@@ -286,7 +304,7 @@
   integrity sha512-ltIpx+kM7g/MLRZfkbL7EsCEjfzCcScLpkg37eXEtx5kmrAKBkTJwd1GIAjDSL8wTpM6Hzn5YO4pSb91BEwu1g==
 
 "Architect@file:..":
-  version "1.0.0-beta-1"
+  version "1.1.0"
   dependencies:
     commander "^12.1.0"
     esbuild "^0.23.1"

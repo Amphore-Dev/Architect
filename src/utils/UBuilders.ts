@@ -15,6 +15,7 @@ import {
 	TStructureItem,
 	TStructurePathResult,
 } from "../types";
+import { TFileExtensions } from "../types/TFileExtensions";
 import {
 	checkFileConflict,
 	getDefaultExtension,
@@ -31,7 +32,7 @@ import { formatName } from "./UStrings";
 
 export function getBuilderPath(pathSegments: string[], config: TConfig) {
 	const defaultPath = path.join(__dirname, "..", "builders");
-	const pluginsPath = path.join(__dirname, "../..", "plugins/builders");
+	const pluginsPath = path.join(__dirname, "..", "plugins/builders");
 
 	const paths = [
 		...generateCustomPaths(config, config.builders),
@@ -86,10 +87,16 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 		outdir.generateSubdirs || outdir.generateSubIndex ? folderName : ""
 	);
 
+	const fileExtension =
+		typeof outdir.extensions === "string"
+			? outdir.extensions
+			: (outdir.extensions?.default ??
+				blueprint.extension ??
+				getDefaultExtension(config));
 	// Construct the output file path based on the directory and file name
 	const fileOutputPath = path.join(
 		outdirPath,
-		`${fileName}${blueprint.extension ? `.${blueprint.extension}` : ""}`
+		`${fileName}${fileExtension ? `.${fileExtension}` : ""}`
 	);
 
 	const prom = new Promise((resolve, reject) => {
@@ -193,7 +200,21 @@ function generateFolders(
 				config.outputDir ?? "",
 				...currentRoot
 			);
-			const indexExtension = getDefaultExtension(config);
+
+			// need to do this because "extenstions" is a distinc item in flatStructure (need to fix "flatAndKeepLastChild" in the future)
+			const itemExtensions =
+				structureItem.extensions ??
+				(flatStructure[`${structureItemKey}.extensions`] as
+					| string
+					| TFileExtensions);
+
+			const indexExtension =
+				typeof itemExtensions === "string"
+					? itemExtensions
+					: (itemExtensions?.index ??
+						itemExtensions?.default ??
+						getDefaultExtension(config));
+
 			const indexPath = path.join(
 				currentRootPath,
 				`index${indexExtension ? `.${indexExtension}` : ""}`

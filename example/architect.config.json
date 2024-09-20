@@ -1,3 +1,20 @@
 {
-	"outputDir": "src/"
+	"language": "react-typescript",
+	"outputDir": "src/",
+	"plugins": ["@amphore-dev/architect-plugin-react"],
+	"structure": {
+		"components": {
+			"type": "component",
+			"subdirs": {
+				"molecules": {
+					"type": "molecule",
+					"extensions": {
+						"default": "DEFAUL",
+						"index": "INDEINDEIN"
+					},
+					"generateIndex": true
+				}
+			}
+		}
+	}
 }

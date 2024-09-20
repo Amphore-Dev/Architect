@@ -15,5 +15,10 @@
 		"skipLibCheck": true
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules", "src/blueprints/**/*", "./src/tests/**/*"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/blueprints/**/*",
+		"./src/tests/**/*"
+	]
 }
