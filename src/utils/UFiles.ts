@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import { Answers } from "inquirer/dist/cjs/types/types";
 import logger from "node-color-log";
 
-import PluginsManager from "../classes/PluginsManagerClass";
+import Context from "../classes/ContextClass";
 import { CPLUGIN_PREFIX } from "../constants";
 import { TConfig } from "../types";
 import { TPluginExtensionsMapping } from "../types/TPlugins";
@@ -50,7 +50,7 @@ export const getFileLanguage = (config: TConfig): string => {
 export const getDefaultExtension = (config: TConfig): string => {
 	const language = getFileLanguage(config);
 
-	const plugins = PluginsManager.getPlugins();
+	const plugins = Context.getPlugins();
 
 	const extensionMapping: TPluginExtensionsMapping = {
 		javascript: "js",
@@ -59,8 +59,10 @@ export const getDefaultExtension = (config: TConfig): string => {
 	plugins?.forEach((plugin) => {
 		if (plugin.extensions) {
 			if (typeof plugin.extensions === "string") {
-				extensionMapping[plugin.name.replace(CPLUGIN_PREFIX, "")] =
-					plugin.extensions;
+				extensionMapping[
+					plugin.destination ??
+						plugin.name.replace(CPLUGIN_PREFIX, "")
+				] = plugin.extensions;
 			} else {
 				Object.assign(extensionMapping, plugin.extensions);
 			}

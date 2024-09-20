@@ -14,3 +14,7 @@ export const INVALID_FOLDER_STRUCTURE = 16;
 export const FILE_CONFLICT = 17;
 
 export const FOLDER_GENERATION_ERROR = 18;
+
+// Plugins
+export const PLUGIN_LOAD_ERROR = 20;
+export const PLUGIN_REGISTER_ERROR = 21;

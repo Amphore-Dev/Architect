@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { Answers } from "inquirer/dist/cjs/types/types";
 
 import { version } from "../package.json";
-import PluginsManager from "./classes/PluginsManagerClass";
+import Context from "./classes/ContextClass";
 import {
 	BUILDER_LOAD_ERROR,
 	INVALID_COMPONENT_TYPE,
@@ -19,7 +19,6 @@ import {
 	successEndLog,
 	getBlueprintPath,
 	getBuilderPath,
-	loadConfig,
 	compileAndLoadUserTsFile,
 } from "./utils";
 
@@ -40,8 +39,12 @@ program
 	)
 	.option("-o, --output <path>", "Specify the output directory")
 	.action(
-		(componentType: string, componentName: string, options: TOptions) => {
-			const config = loadConfig(options.config as string, options);
+		async (
+			componentType: string,
+			componentName: string,
+			options: TOptions
+		) => {
+			const config = await Context.init(options);
 			const outdirs = resolveStructurePath(
 				config.structure ?? {
 					[componentType]: componentType,
@@ -130,6 +133,4 @@ program
 		}
 	);
 
-PluginsManager.loadPlugins().then(() => {
-	program.parse(process.argv);
-});
+program.parse(process.argv);

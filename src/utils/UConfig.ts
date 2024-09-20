@@ -7,7 +7,7 @@ import { errorLog, infoLog } from "./ULogs";
 
 export function loadConfig(
 	_configPath: string = "architect.config.json",
-	options: TOptions
+	options: TOptions = {}
 ): TConfig {
 	const configPath = path.resolve(process.cwd(), _configPath);
 

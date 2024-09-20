@@ -23,6 +23,7 @@ export type TConfig = TStructureItem & {
 	blueprints?: string[]; // Blueprints to include
 	builders?: string[]; // Builders to include
 	options?: TOptions; // Additional options
+	plugins?: string[]; // Plugins to include
 
 	// Post-MVP/Todo properties
 	// includeTests?: boolean; // Whether to include tests

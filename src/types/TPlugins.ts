@@ -1,7 +1,8 @@
 export type TArchitectPlugin = {
-	name: string;
-	register: (architect: TArchitectPluginAPI) => void;
-	extensions?: string | TPluginExtensionsMapping;
+	name: string; // the plugin's name
+	destination: string; // the destination folder name for the plugin files
+	register: (architect: TArchitectPluginAPI) => void; // the plugin's registration function
+	extensions?: string | TPluginExtensionsMapping; // the file extensions supported by the plugin
 };
 
 export type TArchitectPluginAPI = {
