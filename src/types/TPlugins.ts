@@ -1,8 +1,10 @@
+import { TFileExtensions } from "./TFileExtensions";
+
 export type TArchitectPlugin = {
 	name: string; // the plugin's name
 	destination: string; // the destination folder name for the plugin files
 	register: (architect: TArchitectPluginAPI) => void; // the plugin's registration function
-	extensions?: string | TPluginExtensionsMapping; // the file extensions supported by the plugin
+	extensions?: string | TFileExtensions; // the file extensions supported by the plugin
 };
 
 export type TArchitectPluginAPI = {
@@ -23,5 +25,3 @@ export type TArchitectPluginAPI = {
 
 	config: object; // the CLI's configuration, if needed by plugins
 };
-
-export type TPluginExtensionsMapping = Record<string, string>;

@@ -6,7 +6,7 @@ import logger from "node-color-log";
 import Context from "../classes/ContextClass";
 import { CPLUGIN_PREFIX } from "../constants";
 import { TConfig } from "../types";
-import { TPluginExtensionsMapping } from "../types/TPlugins";
+import { TFileExtensions } from "../types/TFileExtensions";
 
 export const checkFileConflict = (path: string): Promise<boolean> => {
 	if (!fs.existsSync(path)) {
@@ -52,7 +52,7 @@ export const getDefaultExtension = (config: TConfig): string => {
 
 	const plugins = Context.getPlugins();
 
-	const extensionMapping: TPluginExtensionsMapping = {
+	const extensionMapping: TFileExtensions = {
 		javascript: "js",
 	};
 

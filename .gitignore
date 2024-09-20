@@ -9,3 +9,4 @@ STRUCTURE_TESTS_SRC
 logs.txt
 /plugins
 .DEV_FOLDER
+architect.config.json

@@ -16,7 +16,7 @@ export function getBlueprintPath(
 ): TBlueprintSearchResult | undefined {
 	// Concatenate the default blueprint path with the user-defined blueprint paths
 	const defaultPath = path.join(__dirname, "..", "blueprints");
-	const pluginsPath = path.join(__dirname, "../..", "plugins/blueprints");
+	const pluginsPath = path.join(__dirname, "..", "plugins/blueprints");
 
 	const paths = [
 		...generateCustomPaths(config, config.blueprints),

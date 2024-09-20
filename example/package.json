@@ -5,6 +5,8 @@
 	"main": "index.js",
 	"license": "MIT",
 	"dependencies": {
+		"@amphore-dev/architect": "../",
+		"@amphore-dev/architect-plugin-react": "^1.0.4",
 		"Architect": "file:../"
 	}
 }
