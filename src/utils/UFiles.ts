@@ -69,9 +69,5 @@ export const getDefaultExtension = (config: TConfig): string => {
 		}
 	});
 
-	const res = Object.keys(extensionMapping).find((key) =>
-		language.includes(key)
-	);
-
-	return res ? extensionMapping[res] : "js";
+	return extensionMapping[language] ?? "js";
 };
