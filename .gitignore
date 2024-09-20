@@ -7,5 +7,5 @@ coverage
 TESTS_SRC
 STRUCTURE_TESTS_SRC
 logs.txt
-plugins
+/plugins
 .DEV_FOLDER
