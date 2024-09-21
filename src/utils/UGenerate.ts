@@ -30,8 +30,7 @@ export const generateFoldersAndIndexes = (
 	fs.mkdirSync(outdirPath, { recursive: true });
 
 	// fallback to default structure item if no options are provided for the current segment
-	const defaultStructureItem = (config?.defaultStructureItem ||
-		{}) as TStructureItem;
+	const defaultStructureItem = config?.defaultStructureItem;
 
 	// last index is used to keep track of the last index file created, so we can export it in the parent index file
 	let lastIndex = "";
@@ -57,16 +56,16 @@ export const generateFoldersAndIndexes = (
 		const generateIndex =
 			structureItem.generateIndex ??
 			(parentStructureItem.generateSubIndex ||
-				defaultStructureItem.generateIndex);
+				defaultStructureItem?.generateIndex);
 
 		// Check if it should generate an index file for the subdirectories of the current segment
 		const generateSubIndex =
 			structureItem.generateSubIndex ??
 			(parentStructureItem.generateSubIndex ||
-				defaultStructureItem.generateSubIndex);
+				defaultStructureItem?.generateSubIndex);
 
 		// if it should generate an index file for the current segment
-		if (generateIndex) {
+		if (generateIndex || (index === 0 && generateSubIndex)) {
 			// Get the path to the current index file
 			const currentRootPath = path.join(
 				config.outputDir ?? "",
@@ -86,7 +85,7 @@ export const generateFoldersAndIndexes = (
 					| string
 					| TFileExtensions);
 
-			const defaultItemExtensions = defaultStructureItem.extensions;
+			const defaultItemExtensions = defaultStructureItem?.extensions;
 
 			console.log("itemExtensions", itemExtensions);
 			console.log("parentExtensions", parentExtensions);
