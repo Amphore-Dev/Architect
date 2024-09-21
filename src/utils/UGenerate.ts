@@ -1,10 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { FOLDER_GENERATION_ERROR, INDEX_WRITE_ERROR } from "../constants";
 import { TConfig, TStructureItem, TStructurePathResult } from "../types";
 import { TFileExtensions } from "../types/TFileExtensions";
 import { getDefaultExtension } from "./UFiles";
 import { flatAndKeepLastChild } from "./UFlat";
+import { errorLog } from "./ULogs";
 
 export const generateFoldersAndIndexes = (
 	outdirPath: string,
@@ -27,16 +29,21 @@ export const generateFoldersAndIndexes = (
 	// Flatten the structure to easily access the structure item for each segment
 	const flatStructure = flatAndKeepLastChild(structure);
 	// Create the output directory if it doesn't exist
-	fs.mkdirSync(outdirPath, { recursive: true });
+	try {
+		fs.mkdirSync(outdirPath, { recursive: true });
+	} catch (e) {
+		errorLog(`Error creating out directory: ${outdirPath}`, e);
+		process.exit(FOLDER_GENERATION_ERROR);
+	}
 
 	// fallback to default structure item if no options are provided for the current segment
-	const defaultStructureItem = config?.defaultStructureItem;
+	const defaultStructureItem = config?.defaultStructureItem ?? {};
 
 	// last index is used to keep track of the last index file created, so we can export it in the parent index file
 	let lastIndex = "";
 
 	// Loop through the segments to generate the index files
-	revSegments.forEach((segment, index) => {
+	revSegments?.forEach((segment, index) => {
 		// Get the parent root and the current root for the current segment
 		const parentRoot = segments.slice(0, segments.length - index - 1);
 		const currentRoot = segments.slice(0, segments.length - index);
@@ -53,15 +60,16 @@ export const generateFoldersAndIndexes = (
 			defaultStructureItem) as TStructureItem;
 
 		// Check if it should generate an index file for the current segment
+
 		const generateIndex =
-			structureItem.generateIndex ??
-			(parentStructureItem.generateSubIndex ||
+			structureItem?.generateIndex ??
+			(parentStructureItem?.generateSubIndex ||
 				defaultStructureItem?.generateIndex);
 
 		// Check if it should generate an index file for the subdirectories of the current segment
 		const generateSubIndex =
-			structureItem.generateSubIndex ??
-			(parentStructureItem.generateSubIndex ||
+			structureItem?.generateSubIndex ??
+			(parentStructureItem?.generateSubIndex ||
 				defaultStructureItem?.generateSubIndex);
 
 		// if it should generate an index file for the current segment
@@ -86,10 +94,6 @@ export const generateFoldersAndIndexes = (
 					| TFileExtensions);
 
 			const defaultItemExtensions = defaultStructureItem?.extensions;
-
-			console.log("itemExtensions", itemExtensions);
-			console.log("parentExtensions", parentExtensions);
-			console.log("defaultItemExtensions", defaultItemExtensions);
 
 			const indexExtension =
 				getIndexExtension(
@@ -166,8 +170,6 @@ const getIndexExtension = (
 			? parentExtensions
 			: (parentExtensions?.index ?? parentExtensions?.default);
 
-	console.log(parentExt);
-	console.log(defaultItemExtensions);
 	// If parentExt is valid, return it; otherwise, check defaultItemExtensions and config
 	return (
 		parentExt ??
@@ -189,6 +191,12 @@ const addImport = (path: string, content: string) => {
 
 	if (!hasImport) {
 		lines.push(content);
-		fs.writeFileSync(path, lines.sort().join("\n"), "utf-8");
+		try {
+			fs.writeFileSync(path, lines.sort().join("\n"), "utf-8");
+		} catch (e) {
+			errorLog(`Error writing to file: ${path}`);
+			errorLog(e);
+			process.exit(INDEX_WRITE_ERROR);
+		}
 	}
 };

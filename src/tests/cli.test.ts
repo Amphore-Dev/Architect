@@ -13,7 +13,7 @@ import {
 	CUSTOM_UTIL_BUILDER_REPLACED,
 } from "./src/constants/CTests";
 
-describe("Command: blueprint", () => {
+describe("cli-tests", () => {
 	const OUT_DIR = "src/tests/TESTS_SRC";
 
 	const DEFAULT_TESTS_ARGS = [
@@ -107,7 +107,7 @@ describe("Command: blueprint", () => {
 			...DEFAULT_TESTS_ARGS,
 			"-f",
 			"atom",
-			"COMPONENT_TEST",
+			"COMPONENT_OVERRITE_TEST",
 		]).on("exit", (code) => {
 			expect(code).toBe(SUCCESS_CODE);
 			spawn("node", [
@@ -115,7 +115,7 @@ describe("Command: blueprint", () => {
 				...DEFAULT_TESTS_ARGS,
 				"-f",
 				"atom",
-				"COMPONENT_TEST",
+				"COMPONENT_OVERRITE_TEST",
 			]).on("exit", (code) => {
 				try {
 					expect(code).toBe(SUCCESS_CODE);
@@ -136,15 +136,19 @@ describe("Command: blueprint", () => {
 			OUT_DIR,
 			"-f",
 			"atom",
-			"COMPONENT_TEST",
+			"COMPONENT_CUSTOM_BP_TEST",
 		]).on("exit", (code) => {
 			try {
-				if (!fs.existsSync(OUT_DIR + "/atoms/COMPONENT_TEST.tsx")) {
+				if (
+					!fs.existsSync(
+						OUT_DIR + "/atoms/COMPONENT_CUSTOM_BP_TEST.tsx"
+					)
+				) {
 					throw new Error("Component not created");
 				}
 
 				const content = fs.readFileSync(
-					OUT_DIR + "/atoms/COMPONENT_TEST.tsx",
+					OUT_DIR + "/atoms/COMPONENT_CUSTOM_BP_TEST.tsx",
 					"utf8"
 				);
 				expect(content).toContain("CUSTOM_REACT_TYPESCRIPT_ATOM");
@@ -194,15 +198,19 @@ describe("Command: blueprint", () => {
 			OUT_DIR,
 			"-f",
 			"util",
-			"CUSTOM_UTIL_BUILDER",
+			"PRIO_CUSTOM_UTIL_BUILDER",
 		]).on("exit", (code) => {
 			try {
-				if (!fs.existsSync(OUT_DIR + "/utils/CUSTOM_UTIL_BUILDER.ts")) {
+				if (
+					!fs.existsSync(
+						OUT_DIR + "/utils/PRIO_CUSTOM_UTIL_BUILDER.ts"
+					)
+				) {
 					throw new Error("Component not created");
 				}
 
 				const content = fs.readFileSync(
-					OUT_DIR + "/utils/CUSTOM_UTIL_BUILDER.ts",
+					OUT_DIR + "/utils/PRIO_CUSTOM_UTIL_BUILDER.ts",
 					"utf8"
 				);
 				expect(content).toContain(CUSTOM_UTIL_BUILDER_REPLACED);
@@ -223,13 +231,13 @@ describe("Command: blueprint", () => {
 			OUT_DIR,
 			"-f",
 			"molecule",
-			"CUSTOM_MOLECULE_BLUEPRINT",
+			"PRIO_CUSTOM_MOLECULE_BLUEPRINT",
 		]).on("exit", (code) => {
 			try {
 				if (
 					!fs.existsSync(
 						OUT_DIR +
-							"/components/molecules/CUSTOM_MOLECULE_BLUEPRINT.tsx"
+							"/components/molecules/PRIO_CUSTOM_MOLECULE_BLUEPRINT.tsx"
 					)
 				) {
 					throw new Error("Component not created");
@@ -237,7 +245,7 @@ describe("Command: blueprint", () => {
 
 				const content = fs.readFileSync(
 					OUT_DIR +
-						"/components/molecules/CUSTOM_MOLECULE_BLUEPRINT.tsx",
+						"/components/molecules/PRIO_CUSTOM_MOLECULE_BLUEPRINT.tsx",
 					"utf8"
 				);
 				expect(content).toContain(CUSTOM_COMPONENT_BLUEPRINT_REPLACED);
