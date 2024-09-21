@@ -19,9 +19,10 @@ export async function loadNpmPlugins(
 				pluginModule.default || pluginModule;
 
 			// Register the plugin with Architect API
-			if (plugin && plugin.register) {
+			if (plugin) {
 				const pluginAPIObject = new ArchitectPlugin(dep, plugin);
-				plugin.register(pluginAPIObject);
+
+				plugin.register?.(pluginAPIObject);
 				plugins.push(plugin);
 			} else {
 				warningLog(
