@@ -9,6 +9,7 @@
 	"license": "MIT",
 	"description": "A CLI tool to generate React components",
 	"main": "dist/index.js",
+	"types": "dist/declarations/index.d.ts",
 	"bin": {
 		"architect": "dist/index.js"
 	},
