@@ -50,6 +50,7 @@ The configuration file should be named `architect.config.json` and placed in the
 | builders             | string[] | Relative paths of builders for constructing the file and folder structure. |
 | options              | object   | Additional options for the CLI.                                            |
 | defaultStructureItem | object   | Default options for each structure item.                                   |
+| plugins              | array    | Additional plugins for the CLI.                                            |
 
 Here is an example configuration file in JSON format:
 
@@ -61,6 +62,7 @@ Here is an example configuration file in JSON format:
 	"defaultStructureItem": {
 		"caseFormat": "pascal"
 	},
+	"plugins": ["@amphore-dev/architect-plugin-react"],
 	"language": "react-typescript",
 	"structure": {
 		"components": {
@@ -166,6 +168,7 @@ The structure defines the folder and file structure of the project.
 | prefix           | string           | Prefix for the name of the generated files.                        |
 | caseFormat       | string or object | Case format for the name of the generated folders/files/components |
 | language         | string           | The language of the project. (e.g., TypeScript, JavaScript, PHP)   |
+| extensions       | string or object | The extensions of the generated files.                             |
 
 ### Case Format
 
@@ -185,21 +188,22 @@ If it is an object, it should have the following properties: (each property is o
 | file | string | The case format for file names. |
 | folder | string | The case format for folder names. |
 
+### Extensions
+
+The extensions key specifies the file extensions for the generated files. It can be a string or an object.
+If it is a string, it should be the file extension (e.g., `tsx`, `js`, `php`, etc.).
+
+If it is an object, it should have the following properties: (each property is optional)
+| Key | Type | Description |
+| ---- | ------ | ---------------------------------- |
+| default | string | The default file extension. |
+| index | string | The file extension for index files. |
+
 ### Language
 
 The language key specifies the language of the project. It is used to determine the files used to generate items.
 
-#### Default Available Languages
-
-| Language                  | Description                  |
-| ------------------------- | ---------------------------- |
-| `javascript`              | JavaScript                   |
-| `react`                   | React                        |
-| `react-typescript`        | React with TypeScript        |
-| `react-native`            | React Native                 |
-| `react-native-typescript` | React Native with TypeScript |
-| `vue`                     | Vue                          |
-| `vue-typescript`          | Vue with TypeScript          |
+Language support are provided by plugins. The default language is `javascript`.
 
 ### Default Structure Item
 
@@ -306,6 +310,45 @@ export function defaultComponentBuilder(args: TBuilderArgs) {
 }
 ```
 
+### Plugins
+
+The plugins key specifies additional plugins for the CLI. Plugins can be used to extend the functionality of the CLI. For now, plugin can be used to provide support for different languages and frameworks by adding blueprints and builders.
+
+### Currently Available Plugins
+
+-   [@amphore-dev/architect-plugin-react](https://www.npmjs.com/package/@amphore-dev/architect-plugin-react)
+
+    | Suppprted Language        | Extensions (index / default) | Description                              |
+    | ------------------------- | ---------------------------- | ---------------------------------------- |
+    | `react`                   | `.js`/ `.jsx`                | React components.                        |
+    | `react-typescript`        | `.ts`/ `.tsx`                | React components with TypeScript.        |
+    | `react-native`            | `.js`/ `.jsx`                | React Native components.                 |
+    | `react-native-typescript` | `.ts`/ `.tsx`                | React Native components with TypeScript. |
+
+### Creating a Plugin
+
+To create a plugin, you can use the following [template on github](https://github.com/Amphore-Dev/Architect-plugin)
+
+The plugin should have the following structure:
+
+```bash
+├── src/
+│   ├── blueprints/
+│   │   ├── default.bp.<extension>
+│   │   ├── myCustomBlueprint.bp.<extension>
+│   │   └── ...
+│   │
+│   └── builders/
+│       ├── default.builder.<extension>
+│       ├── myCustombuilder.builder.<extension>
+│       └── ...
+│
+├── package.json
+└── README.md
+```
+
+`<extension>` is the file extension for the output generated files (e.g., `js`, `ts`, `php`, etc.).
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
@@ -319,7 +362,6 @@ Contributions are what make the open source community such an amazing place to l
       `<feat | fix | test | docs>/ARC-<issue-number>/<feature-name>`
       <br><br>
       ex: `feat/ARC-123/AmazingFeature`
-      (regex: `^(feat|fix|test|docs)\/ARC-\d+\/[a-zA-Z0-9-_]+$`)
 4. Link your branch to the issue on GitHub
 
 5. Commit your Changes (`git commit -m 'feat(ARC-123): Add some AmazingFeature'`)
@@ -332,6 +374,17 @@ Contributions are what make the open source community such an amazing place to l
 6. Push to the Branch (`git push origin feat/ARC-123/AmazingFeature`)
 
 7. Open a Pull Request
+
+    - PR name should be in the format<br>
+      `<type>(<issue-key>): <PR-title>`
+      <br><br>
+      ex: `feat(ARC-123): Add some AmazingFeature`
+
+8. Link the PR to the issue on GitHub
+
+9. Review the changes
+
+10. Merge the Pull Request
 
 ## Contact
 
