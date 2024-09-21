@@ -6,7 +6,7 @@ export type TArchitectPlugin = {
 	destination?: string; // the destination folder name for the plugin files
 	register?: (architect: TArchitectPluginAPI) => void; // the plugin's registration function
 	extensions?: string | TFileExtensions; // the file extensions supported by the plugin
-	config?: TConfig;
+	config?: TConfig; // the plugin's configuration object that will be merged with the CLI's configuration
 };
 
 export type TArchitectPluginAPI = {
