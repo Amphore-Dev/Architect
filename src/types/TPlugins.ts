@@ -1,10 +1,12 @@
+import { TConfig } from "./TConfig";
 import { TFileExtensions } from "./TFileExtensions";
 
 export type TArchitectPlugin = {
 	name: string; // the plugin's name
-	destination: string; // the destination folder name for the plugin files
-	register: (architect: TArchitectPluginAPI) => void; // the plugin's registration function
+	destination?: string; // the destination folder name for the plugin files
+	register?: (architect: TArchitectPluginAPI) => void; // the plugin's registration function
 	extensions?: string | TFileExtensions; // the file extensions supported by the plugin
+	config?: TConfig;
 };
 
 export type TArchitectPluginAPI = {

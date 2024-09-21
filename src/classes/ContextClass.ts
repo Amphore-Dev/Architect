@@ -25,6 +25,7 @@ class Context {
 	public async init(options: TOptions = {}): Promise<TConfig> {
 		this.loadConfig(options.config, options);
 		await this.loadPlugins();
+		this.loadConfig(options.config, options); // Reload config to include plugin configs
 		return this.getConfig();
 	}
 
