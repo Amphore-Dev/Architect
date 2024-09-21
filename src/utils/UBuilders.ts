@@ -208,12 +208,28 @@ function generateFolders(
 					| string
 					| TFileExtensions);
 
+			const parentExtensions =
+				parentStructureItem.extensions ??
+				(flatStructure[`${structureItemKeyParent}.extensions`] as
+					| string
+					| TFileExtensions);
+
+			const defaultItemExtensions = defaultStructureItem.extensions;
+
 			const indexExtension =
 				typeof itemExtensions === "string"
 					? itemExtensions
 					: (itemExtensions?.index ??
 						itemExtensions?.default ??
-						getDefaultExtension(config));
+						(typeof parentExtensions === "string"
+							? parentExtensions
+							: (parentExtensions?.index ??
+								parentExtensions?.default ??
+								(typeof defaultItemExtensions === "string"
+									? defaultItemExtensions
+									: (defaultItemExtensions?.index ??
+										defaultItemExtensions?.default ??
+										getDefaultExtension(config))))));
 
 			const indexPath = path.join(
 				currentRootPath,
