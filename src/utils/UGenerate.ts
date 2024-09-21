@@ -63,8 +63,8 @@ export const generateFoldersAndIndexes = (
 
 		const generateIndex =
 			structureItem?.generateIndex ??
-			(parentStructureItem?.generateSubIndex ||
-				defaultStructureItem?.generateIndex);
+			parentStructureItem?.generateSubIndex ??
+			defaultStructureItem?.generateIndex;
 
 		// Check if it should generate an index file for the subdirectories of the current segment
 		const generateSubIndex =
@@ -132,7 +132,7 @@ export const generateFoldersAndIndexes = (
 			// Update the last index
 			if (!lastIndex && !generateSubIndex) {
 				// if there is no last index and no subdirectories, set the last index to the current file
-				lastIndex = folderName + "/" + fileName;
+				lastIndex = segment + "/" + fileName;
 			} else if (!lastIndex) {
 				// if there is no last index but there are subdirectories, set the last index to the folder name
 				// so the next index file can export the folder
