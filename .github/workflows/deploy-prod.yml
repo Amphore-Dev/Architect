@@ -20,6 +20,10 @@ jobs:
             # call the "jest-test" job to run tests
             - name: Run Jest Tests
               run: npm test
+
+            # Remove the "plugins" folder from dist
+            - run: rm -rf dist/plugins
+
             - run: npm publish --access public
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
