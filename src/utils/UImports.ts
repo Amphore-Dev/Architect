@@ -68,7 +68,7 @@ export function getImportPaths<T>({
 		pathSegments.forEach((segment, i) => {
 			let matchingFile = files.find((file) => {
 				const fileName = file.replace(/\..+$/, "");
-				return fileName === segment;
+				return fileName.toLowerCase() === segment.toLowerCase();
 			});
 
 			if (!matchingFile && i === pathSegments.length - 1) {
