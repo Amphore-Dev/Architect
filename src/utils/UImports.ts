@@ -7,7 +7,7 @@ import { getFileLanguage } from "./UFiles";
 
 export function compileAndLoadUserTsFile(userTsFilePath: string) {
 	const absolutePath = path.resolve(process.cwd(), userTsFilePath);
-	const outputDir = path.resolve(process.cwd(), ".react-blueprint-temp");
+	const outputDir = path.resolve(__dirname, "../compiled");
 	const outputFile = path.join(outputDir, "compiled.js");
 
 	// Ensure the output directory exists
@@ -40,15 +40,6 @@ export function compileAndLoadUserTsFile(userTsFilePath: string) {
 			}, reject);
 	});
 
-	prom.finally(() => {
-		// // Clean up the temporary directory and files after import
-		if (fs.existsSync(outputFile)) {
-			fs.unlinkSync(outputFile); // Delete the compiled JS file
-		}
-		if (fs.existsSync(outputDir)) {
-			fs.rmdirSync(outputDir); // Remove the temp directory
-		}
-	});
 	return prom;
 }
 
@@ -77,7 +68,7 @@ export function getImportPaths<T>({
 		pathSegments.forEach((segment, i) => {
 			let matchingFile = files.find((file) => {
 				const fileName = file.replace(/\..+$/, "");
-				return fileName === segment;
+				return fileName.toLowerCase() === segment.toLowerCase();
 			});
 
 			if (!matchingFile && i === pathSegments.length - 1) {
