@@ -84,10 +84,7 @@ program
 			outdirProm
 				.then((outdir) => {
 					const paths = [...outdir.segments].reverse();
-					const blueprint = getBlueprintPath(paths, {
-						...config,
-						language: outdir.language ?? config.language,
-					});
+					const blueprint = getBlueprintPath(paths, config, outdir);
 
 					if (!blueprint) {
 						errorLog(
@@ -96,7 +93,7 @@ program
 						process.exit(NO_BLUEPRINT_FOUND);
 					}
 
-					const builderPath = getBuilderPath(paths, config);
+					const builderPath = getBuilderPath(paths, config, outdir);
 
 					if (!builderPath) {
 						errorLog(

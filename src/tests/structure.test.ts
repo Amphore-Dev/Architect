@@ -12,7 +12,7 @@ describe("structure", () => {
 
 	const DEFAULT_TESTS_ARGS = [
 		"-c",
-		__dirname + "/src/.test.blueprintsrc",
+		__dirname + "/src/.test.main.config.json",
 		"-o",
 		OUT_DIR,
 	];

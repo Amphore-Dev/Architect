@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 
 import ArchitectPlugin from "../classes/PluginApiClass";
@@ -9,6 +10,11 @@ export async function loadNpmPlugins(
 	pluginsList: string[] = []
 ): Promise<TArchitectPlugin[]> {
 	const plugins: TArchitectPlugin[] = [];
+
+	fs.rmSync(path.join(__dirname, "..", "plugins"), {
+		recursive: true,
+		force: true,
+	});
 
 	pluginsList.forEach(async (dep) => {
 		try {

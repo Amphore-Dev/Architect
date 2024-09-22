@@ -22,8 +22,8 @@ export const getTestTypes = (outdir: string): TTest[] => [
 		type: "none",
 		files: [
 			{
-				path: `${outdir}/components/none/IleFichier.tsx`,
-				contain: "ILEFICHIER",
+				path: `${outdir}/components/none/Le_Fichier.tsx`,
+				contain: "Le_Fichier",
 			},
 		],
 	},
@@ -31,8 +31,8 @@ export const getTestTypes = (outdir: string): TTest[] => [
 		type: "genFolder",
 		files: [
 			{
-				path: `${outdir}/components/genFolder/IleFichier.tsx`,
-				contain: "ILEFICHIER",
+				path: `${outdir}/components/genFolder/Le_Fichier.tsx`,
+				contain: "Le_Fichier",
 			},
 		],
 	},

@@ -7,18 +7,11 @@ export type TOptions = {
 	output?: string;
 };
 
-export type TLanguageOptions = {
-	name: string;
-	extension: string;
-};
-
-export type TLanguage = string | TLanguageOptions;
-
 export type TConfig = TStructureItem & {
 	// MVP properties
 	outputDir?: string; // Base directory for the project
 	structure?: TStructure; // The structure of the project
-	language?: TLanguage; // The format of the project
+	language?: string; // The format of the project
 	defaultStructureItem?: TStructureItem; // Default structure item
 	blueprints?: string[]; // Blueprints to include
 	builders?: string[]; // Builders to include

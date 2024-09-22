@@ -1,6 +1,5 @@
-export const ucFirst = (str: string): string => {
-	return str.charAt(0).toUpperCase() + str.slice(1);
-};
+export const ucFirst = (str: string): string =>
+	str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
 export type TCaseFormat =
 	| "camel"
@@ -32,7 +31,10 @@ export const formatName = (
 	fallback?: TCaseFormat
 ): string => {
 	if (!format && !fallback) return name;
-	const split = name.split(/[^a-zA-Z0-9]+/).filter(Boolean);
+
+	const split = name
+		.split(/([a-zA-Z]+|\d+|[^a-zA-Z0-9]+)/)
+		.filter((s) => s.match(/[a-zA-Z0-9]/));
 
 	const formats: TFormat[] = [
 		{
@@ -41,9 +43,7 @@ export const formatName = (
 				split
 					.map(
 						(word, index) =>
-							index === 0
-								? word.toLowerCase()
-								: ucFirst(word.toLowerCase()) // Lowercase first word, capitalize subsequent words
+							index === 0 ? word.toLowerCase() : ucFirst(word) // Lowercase first word, capitalize subsequent words
 					)
 					.join(""),
 		},
@@ -77,11 +77,11 @@ export const formatName = (
 	const formatName = getCaseFormatName(format, type, fallback);
 
 	const formatter = formats.find(
-		(f) => f.name === formatName || formatName.indexOf(f.name) > -1
+		(f) => f.name === formatName || formatName.indexOf(f.name + "-") > -1
 	)?.formatter;
 	const formattedName = formatter ? formatter(name) : name;
 
-	if (formatName.indexOf("upper") > -1) {
+	if (formatName.indexOf("-upper") > -1) {
 		return formattedName.toUpperCase();
 	}
 	return formattedName;
@@ -90,10 +90,10 @@ export const formatName = (
 export const getCaseFormatName = (
 	format?: TCaseFormatConfig,
 	type?: TFomatType,
-	fallback: TCaseFormat = "pascal"
+	fallback?: TCaseFormat
 ) => {
 	if (!format) {
-		return fallback;
+		return "";
 	}
 	if (typeof format === "string") {
 		return format;
@@ -101,5 +101,5 @@ export const getCaseFormatName = (
 
 	return type && format[type]
 		? format[type]
-		: format.file || format.folder || fallback;
+		: format.file || format.folder || fallback || "";
 };

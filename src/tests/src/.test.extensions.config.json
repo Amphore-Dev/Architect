@@ -1,0 +1,28 @@
+{
+	"structure": {
+		"customTypes": "customType",
+		"components": {
+			"type": "component",
+			"extensions": "component"
+		},
+		"utils": "util",
+		"hooks": {
+			"type": "hook",
+			"extensions": {
+				"index": "hookIndex",
+				"default": "hookDefault"
+			},
+			"generateIndex": true
+		}
+	},
+	"defaultStructureItem": {
+		"extensions": {
+			"index": "index",
+			"default": "default"
+		},
+		"generateIndex": true
+	},
+	"blueprints": ["src/tests/src/blueprints"],
+	"language": "react-typescript",
+	"plugins": ["@amphore-dev/architect-plugin-react"]
+}

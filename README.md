@@ -94,6 +94,10 @@ Here is an example configuration file in JSON format:
 			},
 			"generateIndex": true
 		},
+		"services": {
+			"type": "service",
+			"suffix": "Service"
+		},
 		"types": {
 			"type": "type",
 			"prefix": "T"
@@ -145,6 +149,10 @@ src/
 │   ├── index.ts
 │   └── CMyConstant.ts # file content will be: CMY_CONSTANT = 'my_constant';
 │
+├── services/
+│   ├── index.ts
+│   └── MyServiceService.ts
+│
 ├── types/
 │   ├── index.ts
 │   └── TMyType.ts
@@ -166,8 +174,9 @@ The structure defines the folder and file structure of the project.
 | generateSubdirs  | boolean          | Generate subdirectories for the structure item                     |
 | generateSubIndex | boolean          | Generate an index file for the structure item                      |
 | prefix           | string           | Prefix for the name of the generated files.                        |
+| suffix           | string           | Suffix for the name of the generated files.                        |
 | caseFormat       | string or object | Case format for the name of the generated folders/files/components |
-| language         | string           | The language of the project. (e.g., TypeScript, JavaScript, PHP)   |
+| language         | string           | The language of the item. (e.g., TypeScript, JavaScript, PHP)      |
 | extensions       | string or object | The extensions of the generated files.                             |
 
 ### Case Format
@@ -310,7 +319,7 @@ export function defaultComponentBuilder(args: TBuilderArgs) {
 }
 ```
 
-### Plugins
+## Plugins
 
 The plugins key specifies additional plugins for the CLI. Plugins can be used to extend the functionality of the CLI. For now, plugin can be used to provide support for different languages and frameworks by adding blueprints and builders.
 

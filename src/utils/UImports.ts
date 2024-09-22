@@ -2,7 +2,12 @@ import esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
 
-import { TBuilderImport, TConfig, TImportPathResult } from "../types";
+import {
+	TBuilderImport,
+	TConfig,
+	TImportPathResult,
+	TStructureItem,
+} from "../types";
 import { getFileLanguage } from "./UFiles";
 
 export function compileAndLoadUserTsFile(userTsFilePath: string) {
@@ -119,7 +124,8 @@ export const generateFormatPaths = (
 
 export const generateCustomPaths = (
 	config: TConfig,
-	paths?: string[]
+	paths?: string[],
+	outdir?: TStructureItem
 ): string[] => {
 	const ret = [] as string[];
 
@@ -128,7 +134,7 @@ export const generateCustomPaths = (
 	}
 
 	paths.forEach((file) => {
-		ret.push(...generateFormatPaths(getFileLanguage(config), file));
+		ret.push(...generateFormatPaths(getFileLanguage(config, outdir), file));
 		ret.push(file);
 	});
 
