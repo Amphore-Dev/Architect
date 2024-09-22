@@ -31,7 +31,10 @@ export const formatName = (
 	fallback?: TCaseFormat
 ): string => {
 	if (!format && !fallback) return name;
-	const split = name.split(/(?=[^a-zA-Z])|(?<=[^a-zA-Z])/).filter(Boolean);
+
+	const split = name
+		.split(/([a-zA-Z]+|\d+|[^a-zA-Z0-9]+)/)
+		.filter((s) => s.match(/[a-zA-Z0-9]/));
 
 	const formats: TFormat[] = [
 		{
@@ -40,9 +43,7 @@ export const formatName = (
 				split
 					.map(
 						(word, index) =>
-							index === 0
-								? word.toLowerCase()
-								: ucFirst(word.toLowerCase()) // Lowercase first word, capitalize subsequent words
+							index === 0 ? word.toLowerCase() : ucFirst(word) // Lowercase first word, capitalize subsequent words
 					)
 					.join(""),
 		},
@@ -75,7 +76,9 @@ export const formatName = (
 
 	const formatName = getCaseFormatName(format, type, fallback);
 
-	const formatter = formats.find((f) => f.name === formatName)?.formatter;
+	const formatter = formats.find(
+		(f) => f.name === formatName || formatName.indexOf(f.name + "-") > -1
+	)?.formatter;
 	const formattedName = formatter ? formatter(name) : name;
 
 	if (formatName.indexOf("-upper") > -1) {

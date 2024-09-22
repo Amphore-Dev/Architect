@@ -41,26 +41,14 @@
 					"generateDir": false,
 					"generateIndex": false,
 					"generateSubdirs": false,
-					"generateSubIndex": false,
-					"prefix": "I",
-					"caseFormat": {
-						"name": "camel-upper",
-						"file": "camel",
-						"folder": "kebab"
-					}
+					"generateSubIndex": false
 				},
 				"genFolder": {
 					"type": "genFolder",
 					"generateDir": true,
 					"generateIndex": false,
 					"generateSubdirs": false,
-					"generateSubIndex": false,
-					"prefix": "I",
-					"caseFormat": {
-						"name": "camel-upper",
-						"file": "camel",
-						"folder": "kebab"
-					}
+					"generateSubIndex": false
 				},
 				"genIndexOnly": {
 					"type": "genIndexOnly",
