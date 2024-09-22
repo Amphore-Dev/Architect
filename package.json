@@ -5,9 +5,9 @@
 		"type": "git",
 		"url": "git+https://github.com/Amphore-Dev/Architect.git"
 	},
-	"author": "Simeon-Ferrara <pixono26@gmail.com>",
+	"author": "Amphore Dev <contact@amphore.dev>",
 	"license": "MIT",
-	"description": "A CLI tool to generate React components",
+	"description": "A CLI tool to generate files and folders based on blueprints",
 	"main": "dist/index.js",
 	"types": "dist/declarations/index.d.ts",
 	"bin": {
