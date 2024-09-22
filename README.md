@@ -310,7 +310,7 @@ export function defaultComponentBuilder(args: TBuilderArgs) {
 }
 ```
 
-### Plugins
+## Plugins
 
 The plugins key specifies additional plugins for the CLI. Plugins can be used to extend the functionality of the CLI. For now, plugin can be used to provide support for different languages and frameworks by adding blueprints and builders.
 
