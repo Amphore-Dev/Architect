@@ -63,9 +63,18 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 	}
 
 	const baseName = outdir.prefix || "";
-	const folderName = baseName + formatName(name, outdir.caseFormat, "folder");
-	const fileName = baseName + formatName(name, outdir.caseFormat, "file");
-	const outName = baseName + formatName(name, outdir.caseFormat, "name");
+	const folderName =
+		baseName +
+		formatName(name, outdir.caseFormat, "folder") +
+		(outdir.suffix ?? "");
+	const fileName =
+		baseName +
+		formatName(name, outdir.caseFormat, "file") +
+		(outdir.suffix ?? "");
+	const outName =
+		baseName +
+		formatName(name, outdir.caseFormat, "name") +
+		(outdir.suffix ?? "");
 	// Resolve the structure path using the provided type
 
 	if (!outdir) {

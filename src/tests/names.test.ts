@@ -66,6 +66,29 @@ describe("Name formatting & prefixes", () => {
 		}
 	});
 
+	it("Suffix check", (done) => {
+		spawn("node", [
+			cliPath,
+			...DEFAULT_TESTS_ARGS,
+			"service",
+			"testWithCase",
+		]).on("exit", () => {
+			try {
+				if (!fs.existsSync(OUT_PATH)) {
+					throw new Error("Component not created");
+				}
+
+				const content = fs.readFileSync(OUT_PATH, "utf-8");
+
+				expect(content).toContain("CTEST_WITH_CASE");
+
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
 	/**
 	 * each type (name/file/folder) can have a different case format
 	 * when caseFormat is an object in the config

@@ -19,6 +19,16 @@
 			},
 			"generateSubdirs": true
 		},
+		"service": {
+			"type": "service",
+			"suffix": "Service",
+			"caseFormat": {
+				"name": "snake-upper",
+				"file": "snake",
+				"folder": "kebab"
+			},
+			"generateSubdirs": true
+		},
 		"components": {
 			"type": "indexCheck",
 			"subdirs": {
