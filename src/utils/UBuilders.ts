@@ -11,6 +11,7 @@ import {
 	TBuilderSearchResult,
 	TBuildPaths,
 	TConfig,
+	TStructureItem,
 } from "../types";
 import {
 	checkFileConflict,
@@ -26,14 +27,18 @@ import {
 import { errorLog, infoLog } from "./ULogs";
 import { formatName } from "./UStrings";
 
-export function getBuilderPath(pathSegments: string[], config: TConfig) {
+export function getBuilderPath(
+	pathSegments: string[],
+	config: TConfig,
+	outdir?: TStructureItem
+) {
 	const defaultPath = path.join(__dirname, "..", "builders");
 	const pluginsPath = path.join(__dirname, "..", "plugins/builders");
 
 	const paths = [
-		...generateCustomPaths(config, config.builders),
-		...generateCustomPaths(config, [pluginsPath]),
-		...generateFormatPaths(getFileLanguage(config), defaultPath),
+		...generateCustomPaths(config, config.builders, outdir),
+		...generateCustomPaths(config, [pluginsPath], outdir),
+		...generateFormatPaths(getFileLanguage(config, outdir), defaultPath),
 	];
 
 	return getImportPaths<TBuilderSearchResult>({

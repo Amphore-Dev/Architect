@@ -4,8 +4,8 @@ import { Answers } from "inquirer/dist/cjs/types/types";
 import logger from "node-color-log";
 
 import Context from "../classes/ContextClass";
-import { CPLUGIN_PREFIX } from "../constants";
-import { TConfig } from "../types";
+import { CPLUGIN_PREFIX, DEFAULT_LANGUAGE } from "../constants";
+import { TConfig, TStructureItem } from "../types";
 import { TFileExtensions } from "../types/TFileExtensions";
 
 export const checkFileConflict = (path: string): Promise<boolean> => {
@@ -42,13 +42,19 @@ export const checkFileConflict = (path: string): Promise<boolean> => {
 	return outdirProm;
 };
 
-export const getFileLanguage = (config: TConfig): string => {
-	const { language } = config;
-	return typeof language === "string" ? language : (language?.name ?? "");
+export const getFileLanguage = (
+	config: TConfig,
+	structureItem?: TStructureItem
+): string => {
+	return structureItem?.language ?? config.language ?? DEFAULT_LANGUAGE;
 };
 
-export const getDefaultExtension = (config: TConfig): string => {
-	const language = getFileLanguage(config);
+export const getDefaultExtension = (
+	config: TConfig,
+	structureItem?: TStructureItem
+): string => {
+	const language =
+		structureItem?.language ?? config.language ?? DEFAULT_LANGUAGE;
 
 	const plugins = Context.getPlugins();
 

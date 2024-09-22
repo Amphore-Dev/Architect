@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { TConfig } from "../types";
+import { DEFAULT_LANGUAGE } from "../constants";
+import { TConfig, TStructurePathResult } from "../types";
 import { TBlueprintSearchResult } from "../types/TBlueprint";
 import { getDefaultExtension, getFileLanguage } from "./UFiles";
 import {
@@ -12,16 +13,17 @@ import {
 
 export function getBlueprintPath(
 	pathSegments: string[],
-	config: TConfig
+	config: TConfig,
+	outdir: TStructurePathResult
 ): TBlueprintSearchResult | undefined {
 	// Concatenate the default blueprint path with the user-defined blueprint paths
 	const defaultPath = path.join(__dirname, "..", "blueprints");
 	const pluginsPath = path.join(__dirname, "..", "plugins/blueprints");
 
 	const paths = [
-		...generateCustomPaths(config, config.blueprints),
-		...generateCustomPaths(config, [pluginsPath]),
-		...generateFormatPaths(getFileLanguage(config), defaultPath),
+		...generateCustomPaths(config, config.blueprints, outdir),
+		...generateCustomPaths(config, [pluginsPath], outdir),
+		...generateFormatPaths(getFileLanguage(config, outdir), defaultPath),
 	];
 
 	return getImportPaths<TBlueprintSearchResult>({
@@ -35,14 +37,14 @@ export function getBlueprintPath(
 			extension: path.extname(name).replace(".", ""),
 			isCustom,
 		}),
-		defaultImport: getDefaultBlueprint(config),
+		defaultImport: getDefaultBlueprint(config, outdir),
 	});
 }
 
-const getDefaultBlueprint = (config: TConfig) => {
+const getDefaultBlueprint = (config: TConfig, outdir: TStructurePathResult) => {
 	const defaultPath = [__dirname, "..", "blueprints"].join(path.sep);
-	const format = getFileLanguage(config);
-	const extension = getDefaultExtension(config);
+	const format = config.language ?? DEFAULT_LANGUAGE;
+	const extension = getDefaultExtension(config, outdir);
 
 	// Split the format by hyphens and use the parts as folder paths
 	const formatParts = format.split("-");
@@ -67,10 +69,7 @@ const getDefaultBlueprint = (config: TConfig) => {
 		path: path.join(defaultPath, "default.bp"),
 		name: "default.bp",
 		content: "",
-		extension:
-			typeof config.language === "string"
-				? extension
-				: (config.language?.extension ?? ""),
+		extension,
 		isCustom: false,
 	};
 };

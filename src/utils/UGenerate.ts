@@ -100,7 +100,7 @@ export const generateFoldersAndIndexes = (
 					itemExtensions,
 					parentExtensions,
 					defaultItemExtensions
-				) || getDefaultExtension(config);
+				) || getDefaultExtension(config, structureItem);
 
 			const indexPath = path.join(
 				currentRootPath,

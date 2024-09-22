@@ -18,7 +18,7 @@ describe("cli-tests", () => {
 
 	const DEFAULT_TESTS_ARGS = [
 		"-c",
-		__dirname + "/src/.test.blueprintsrc",
+		__dirname + "/src/.test.main.config.json",
 		"-o",
 		OUT_DIR,
 	];
@@ -39,7 +39,7 @@ describe("cli-tests", () => {
 		spawn("node", [
 			cliPath,
 			"-c",
-			__dirname + "/src/.invalid.blueprintsrc", // This should be an invalid file
+			__dirname + "/src/.test.invalid.config", // This should be an invalid file
 			"customType",
 			"Test",
 		]).on("exit", (code) => {
@@ -131,7 +131,7 @@ describe("cli-tests", () => {
 		spawn("node", [
 			cliPath,
 			"-c",
-			__dirname + "/src/.test.blueprints.blueprintsrc",
+			__dirname + "/src/.test.cli.config.json",
 			"-o",
 			OUT_DIR,
 			"-f",
@@ -164,7 +164,7 @@ describe("cli-tests", () => {
 		spawn("node", [
 			cliPath,
 			"-c",
-			__dirname + "/src/.test.builders.blueprintsrc",
+			__dirname + "/src/.test.names.config.json",
 			"-o",
 			OUT_DIR,
 			"-f",
@@ -193,7 +193,7 @@ describe("cli-tests", () => {
 		spawn("node", [
 			cliPath,
 			"-c",
-			__dirname + "/src/.test.builders.blueprintsrc",
+			__dirname + "/src/.test.names.config.json",
 			"-o",
 			OUT_DIR,
 			"-f",
@@ -226,7 +226,7 @@ describe("cli-tests", () => {
 		spawn("node", [
 			cliPath,
 			"-c",
-			__dirname + "/src/.test.blueprints.blueprintsrc",
+			__dirname + "/src/.test.cli.config.json",
 			"-o",
 			OUT_DIR,
 			"-f",

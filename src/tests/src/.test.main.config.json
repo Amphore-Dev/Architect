@@ -3,6 +3,11 @@
 	"structure": {
 		"customTypes": "customType",
 		"atoms": "atom",
+		"languages": {
+			"type": "language",
+			"language": "javascript",
+			"generateIndex": true
+		},
 		"utils": {
 			"type": "util",
 			"prefix": "U",
@@ -15,6 +20,16 @@
 			"caseFormat": {
 				"name": "snake-upper",
 				"file": "snake",
+				"folder": "kebab"
+			},
+			"generateSubdirs": true
+		},
+		"extensions": {
+			"type": "extension",
+			"prefix": "E",
+			"caseFormat": {
+				"name": "camel-upper",
+				"file": "camel",
 				"folder": "kebab"
 			},
 			"generateSubdirs": true
@@ -323,7 +338,5 @@
 	"defaultStructureItem": {
 		"generateIndex": false
 	},
-	"plugins": [
-		"@amphore-dev/architect-plugin-react"
-	]
+	"plugins": ["@amphore-dev/architect-plugin-react"]
 }

@@ -12,7 +12,7 @@ describe("Name formatting & prefixes", () => {
 
 	const DEFAULT_TESTS_ARGS = [
 		"-c",
-		__dirname + "/src/.test.blueprintsrc",
+		__dirname + "/src/.test.main.config.json",
 		"-o",
 		OUT_DIR,
 	];
@@ -130,6 +130,150 @@ describe("Name formatting & prefixes", () => {
 					"utf-8"
 				);
 				expect(content).toContain("UTEST-WITH-CASE");
+				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
+	it("Extensions check - string", (done) => {
+		spawn("node", [
+			cliPath,
+			"-o",
+			OUT_DIR,
+			"-c",
+			__dirname + "/src/.test.extensions.config.json",
+			"component",
+			"extensionTest",
+		]).on("exit", (code) => {
+			try {
+				if (
+					!fs.existsSync(
+						OUT_DIR + "/components/extensionTest.component"
+					)
+				) {
+					throw new Error("Component not created");
+				}
+
+				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+	it("Extensions check - object", (done) => {
+		spawn("node", [
+			cliPath,
+			"-o",
+			OUT_DIR,
+			"-c",
+			__dirname + "/src/.test.extensions.config.json",
+			"hook",
+			"extensionTest",
+		]).on("exit", (code) => {
+			try {
+				if (
+					!fs.existsSync(OUT_DIR + "/hooks/extensionTest.hookDefault")
+				) {
+					throw new Error("Component not created");
+				}
+
+				if (!fs.existsSync(OUT_DIR + "/hooks/index.hookIndex")) {
+					throw new Error("Index not created");
+				}
+
+				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
+	it("Extensions check - DefaultStructureItem object", (done) => {
+		spawn("node", [
+			cliPath,
+			"-o",
+			OUT_DIR,
+			"-c",
+			__dirname + "/src/.test.extensions.config.json",
+			"util",
+			"extensionTest",
+		]).on("exit", (code) => {
+			try {
+				if (!fs.existsSync(OUT_DIR + "/utils/extensionTest.default")) {
+					throw new Error("Component not created");
+				}
+
+				if (!fs.existsSync(OUT_DIR + "/utils/index.index")) {
+					throw new Error("Index not created");
+				}
+
+				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
+	it("Extensions check - DefaultStructureItem string", (done) => {
+		spawn("node", [
+			cliPath,
+			"-o",
+			OUT_DIR,
+			"-c",
+			__dirname + "/src/.test.extensions.default.config.json",
+			"util",
+			"extensionTest",
+		]).on("exit", (code) => {
+			try {
+				if (
+					!fs.existsSync(
+						OUT_DIR + "/utils/extensionTest.defaultStructureItem"
+					)
+				) {
+					throw new Error("Component not created");
+				}
+
+				if (
+					!fs.existsSync(
+						OUT_DIR + "/utils/index.defaultStructureItem"
+					)
+				) {
+					throw new Error("Index not created");
+				}
+
+				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
+				done();
+			} catch (error) {
+				done(error);
+			}
+		});
+	});
+
+	it("Language check", (done) => {
+		spawn("node", [
+			cliPath,
+			"-o",
+			OUT_DIR,
+			"-c",
+			__dirname + "/src/.test.main.config.json",
+			"language",
+			"languageTest",
+		]).on("exit", (code) => {
+			try {
+				if (!fs.existsSync(OUT_DIR + "/languages/languageTest.js")) {
+					throw new Error("Component not created");
+				}
+
+				if (!fs.existsSync(OUT_DIR + "/languages/index.js")) {
+					throw new Error("Index not created");
+				}
+
 				expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
 				done();
 			} catch (error) {

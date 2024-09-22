@@ -1,5 +1,4 @@
 import { TCaseFormatConfig } from "../utils";
-import { TLanguage } from "./TConfig";
 import { TFileExtensions } from "./TFileExtensions";
 
 // Type de structure pour chaque élément
@@ -13,7 +12,7 @@ export type TStructureItem = {
 	prefix?: string; // Préfixe pour le nom de l'élément
 	suffix?: string; // Suffixe pour le nom de l'élément
 	caseFormat?: TCaseFormatConfig; // Format du nom de l'élément
-	language?: TLanguage; // Format du fichier
+	language?: string; // Format du fichier
 	extensions?: string | TFileExtensions;
 };
 
