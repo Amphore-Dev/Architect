@@ -23,4 +23,5 @@ module.exports = {
     },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  globalSetup: "./src/tests/jest.global-setup.ts",
 };

@@ -2,13 +2,12 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import path from "path";
 
-import { SUCCESS_CODE } from "../constants";
+import { SUCCESS_CODE, TEST_OUTPUT_DIR } from "../constants";
 import { getTestTypes } from "./src/utils/UTestsFoldersAndIndexes";
 
 describe("structure", () => {
-	const OUT_DIR_BASE = "src/tests/";
 	const OUT_DIR_NAME = "STRUCTURE_TESTS_SRC";
-	const OUT_DIR = OUT_DIR_BASE + OUT_DIR_NAME;
+	const OUT_DIR = TEST_OUTPUT_DIR + OUT_DIR_NAME;
 
 	const DEFAULT_TESTS_ARGS = [
 		"-c",
@@ -19,7 +18,7 @@ describe("structure", () => {
 
 	beforeAll(() => {
 		// clean out folder before tests
-		fs.rm(`${__dirname}/${OUT_DIR_NAME}`, { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 
 	const cliPath = path.join(__dirname, "../../dist/index.js"); // Adjust path to your built CLI
@@ -38,15 +37,27 @@ describe("structure", () => {
 				"Le_Fichier",
 			]).on("exit", (code) => {
 				try {
-					files.forEach(({ path, contain }) => {
-						if (!fs.existsSync(path)) {
-							throw new Error(`File not created: ${path}`);
+					files.forEach(({ path: filePath, contain }) => {
+						const dir = path.dirname(filePath);
+						const base = path.basename(filePath);
+
+						// Récupère tous les fichiers dans le dossier
+						const files = fs.readdirSync(dir);
+
+						// Vérifie si le nom correspond exactement (case-sensitive)
+						if (!files.includes(base)) {
+							throw new Error(
+								`File "${base}" not found (wrong casing ?) in directory: ${dir}`
+							);
+						}
+						if (!fs.existsSync(filePath)) {
+							throw new Error(`File not created: ${filePath}`);
 						}
 
 						if (!contain) {
 							return;
 						}
-						const content = fs.readFileSync(path, "utf-8");
+						const content = fs.readFileSync(filePath, "utf-8");
 						expect(content).toContain(contain);
 					});
 
@@ -61,6 +72,6 @@ describe("structure", () => {
 
 	afterAll(() => {
 		// clean out folder after tests
-		fs.rm(`${__dirname}/${OUT_DIR_NAME}`, { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 });

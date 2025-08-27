@@ -2,12 +2,11 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import path from "path";
 
-import { SUCCESS_CODE } from "../constants";
+import { SUCCESS_CODE, TEST_OUTPUT_DIR } from "../constants";
 
 describe("Name formatting & prefixes", () => {
-	const OUT_DIR_BASE = "src/tests/";
 	const OUT_DIR_NAME = "NAMES_TESTS_SRC";
-	const OUT_DIR = OUT_DIR_BASE + OUT_DIR_NAME;
+	const OUT_DIR = TEST_OUTPUT_DIR + OUT_DIR_NAME;
 	const OUT_PATH = OUT_DIR + "/constants/Ctest-with-case/Ctest_with_case.ts";
 
 	const DEFAULT_TESTS_ARGS = [
@@ -19,7 +18,7 @@ describe("Name formatting & prefixes", () => {
 
 	beforeAll(() => {
 		// clean out folder before tests
-		fs.rm(`${__dirname}/${OUT_DIR_NAME}`, { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 
 	const cliPath = path.join(__dirname, "../../dist/index.js"); // Adjust path to your built CLI
@@ -284,6 +283,6 @@ describe("Name formatting & prefixes", () => {
 
 	afterAll(() => {
 		// clean out folder after tests
-		fs.rm(`${__dirname}/${OUT_DIR_NAME}`, { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 });

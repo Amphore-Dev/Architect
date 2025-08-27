@@ -66,7 +66,7 @@ export const getTestTypes = (outdir: string): TTest[] => [
 		type: "subDir",
 		files: [
 			{
-				path: `${outdir}/components/subDir/Ile-fichier/IleFichier.tsx`,
+				path: `${outdir}/components/subDir/Ile-fichier/ILeFichier.tsx`,
 				contain: "ILEFICHIER",
 			},
 		],

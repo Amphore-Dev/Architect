@@ -9,11 +9,9 @@ export type TCaseFormat =
 	| "kebab-upper"
 	| "snake-upper";
 
-export type TCaseFormatConfigOption = {
-	folder?: TCaseFormat;
-	file?: TCaseFormat;
-	name?: TCaseFormat;
-};
+export type TFomatType = "folder" | "file" | "name";
+
+export type TCaseFormatConfigOption = Record<TFomatType, TCaseFormat>;
 
 export type TCaseFormatConfig = TCaseFormat | TCaseFormatConfigOption;
 
@@ -21,8 +19,6 @@ type TFormat = {
 	name: TCaseFormat;
 	formatter: (name: string) => string;
 };
-
-type TFomatType = "folder" | "file" | "name";
 
 export const formatName = (
 	name: string,
@@ -32,9 +28,13 @@ export const formatName = (
 ): string => {
 	if (!format && !fallback) return name;
 
-	const split = name
-		.split(/([a-zA-Z]+|\d+|[^a-zA-Z0-9]+)/)
-		.filter((s) => s.match(/[a-zA-Z0-9]/));
+	const split = name // 1. sépare avant une majuscule (sauf au tout début)
+		.replace(/([a-z])([A-Z])/g, "$1 $2")
+		// 2. remplace tout non-alpha par un espace
+		.replace(/[^a-zA-Z]+/g, " ")
+		// 3. coupe en morceaux
+		.trim()
+		.split(/\s+/);
 
 	const formats: TFormat[] = [
 		{
@@ -56,21 +56,11 @@ export const formatName = (
 		},
 		{
 			name: "kebab",
-			formatter: (name: string) =>
-				name
-					.replace(/([a-z])([A-Z])/g, "$1-$2") // Insert hyphen between camelCase boundaries
-					.split(/[^a-zA-Z0-9]+/) // Split by any non-letter characters
-					.filter(Boolean) // Remove empty strings from the array
-					.map((word) => word.toLowerCase()) // Convert all words to lowercase
-					.join("-"), // Join with hyphens
+			formatter: () => split.join("-").toLowerCase(), // Join with hyphens
 		},
 		{
 			name: "snake",
-			formatter: (name: string) =>
-				name
-					.replace(/([a-z])([A-Z])/g, "$1_$2") // Insert underscore between camelCase transitions
-					.replace(/[^a-zA-Z0-9]+/g, "_") // Replace non-letter characters with underscores
-					.toLowerCase(),
+			formatter: () => split.join("_").toLowerCase(),
 		},
 	];
 

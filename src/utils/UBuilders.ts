@@ -25,7 +25,7 @@ import {
 	getImportPaths,
 } from "./UImports";
 import { errorLog, infoLog } from "./ULogs";
-import { formatName } from "./UStrings";
+import { formatName, TFomatType } from "./UStrings";
 
 export function getBuilderPath(
 	pathSegments: string[],

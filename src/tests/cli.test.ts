@@ -7,6 +7,7 @@ import {
 	INVALID_COMPONENT_TYPE,
 	INVALID_CONFIG_FILE,
 	SUCCESS_CODE,
+	TEST_OUTPUT_DIR,
 } from "../constants";
 import {
 	CUSTOM_COMPONENT_BLUEPRINT_REPLACED,
@@ -14,7 +15,7 @@ import {
 } from "./src/constants/CTests";
 
 describe("cli-tests", () => {
-	const OUT_DIR = "src/tests/TESTS_SRC";
+	const OUT_DIR = TEST_OUTPUT_DIR + "CLI_TESTS_SRC";
 
 	const DEFAULT_TESTS_ARGS = [
 		"-c",
@@ -25,7 +26,7 @@ describe("cli-tests", () => {
 
 	beforeAll(() => {
 		// clean out folder before tests
-		fs.rm(__dirname + "/TESTS_SRC", { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 
 	const cliPath = path.join(__dirname, "../../dist/index.js"); // Adjust path to your built CLI
@@ -259,6 +260,6 @@ describe("cli-tests", () => {
 
 	// clean out folder after tests
 	afterAll(() => {
-		fs.rm(__dirname + "/TESTS_SRC", { recursive: true }, () => {});
+		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
 	});
 });

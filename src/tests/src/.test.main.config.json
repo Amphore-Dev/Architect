@@ -110,7 +110,7 @@
 					"prefix": "I",
 					"caseFormat": {
 						"name": "camel-upper",
-						"file": "camel",
+						"file": "pascal",
 						"folder": "kebab"
 					}
 				},

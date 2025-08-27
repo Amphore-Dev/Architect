@@ -5,10 +5,9 @@
 		"atoms": "atom",
 		"utils": "util"
 	},
-	"builders": [
-		"src/tests/src/builders"
-	],
-	"plugins": [
-		"@amphore-dev/architect-plugin-react"
-	]
+	"defaultStructureItem": {
+		"caseFormat": "snake-upper"
+	},
+	"builders": ["src/tests/src/builders"],
+	"plugins": ["@amphore-dev/architect-plugin-react"]
 }

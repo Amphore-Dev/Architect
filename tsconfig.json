@@ -13,7 +13,7 @@
 		"declaration": true,
 		"declarationDir": "./dist/declarations"
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/tests/jest.global-setup.ts"],
 	"exclude": [
 		"node_modules",
 		"dist",
