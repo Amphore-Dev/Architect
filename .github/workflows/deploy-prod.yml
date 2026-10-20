@@ -1,35 +1,46 @@
 name: ☢︎ Publish Production Package
 
 on:
-    workflow_dispatch:
-    release:
-        types: [created]
+    # Event for the workflow to run on new tag creation
+    push:
+        tags:
+            - "v*.*.*" # Matches tags like v1.0.0, v2.1.3, etc.
 
-# OIDC (npm trusted publishing): no NPM_TOKEN secret,
-# the package is published with a short-lived token and a provenance attestation
 permissions:
     contents: read
+    # Required for npm Trusted Publishing (OIDC) — no NPM_TOKEN secret needed.
+    # GitHub Actions exchanges this workflow's identity for a short-lived
+    # publish credential, verified against the "Trusted Publisher" configured
+    # on the npmjs.com package settings (repo + this exact workflow file).
     id-token: write
 
 jobs:
-    publish:
+    test:
+        uses: ./.github/workflows/tests.yml
+
+    build:
+        needs: test
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
 
-            # Setup .npmrc file to publish to npm
+            # registry-url is required for Trusted Publishing (npm's canonical example).
+            # NODE_AUTH_TOKEN must NOT be set, it would break the OIDC handshake.
             - uses: actions/setup-node@v7
               with:
-                  node-version: "24.x"
+                  node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
                   cache: "yarn"
 
-            # trusted publishing requires npm >= 11.5.1
+            - run: yarn install --frozen-lockfile
+            - run: yarn build
+
+            # setup-node negotiates the OIDC handshake, but npm itself
+            # still needs to be >=11.5.1 to use the resulting credential —
+            # Node's bundled npm may predate that. Bump it just for publish.
             - run: npm install -g npm@latest
 
-            - run: yarn install --frozen-lockfile
-
-            # build & run the tests
-            - run: yarn test
-
-            - run: npm publish --access public
+            # Staged publish: the version is queued, a maintainer has to review
+            # and approve it on npmjs.com (2FA, interactive — can't be done from CI)
+            # before it's actually live.
+            - run: npm stage publish
