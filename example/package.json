@@ -1,9 +1,15 @@
 {
 	"name": "example",
 	"version": "1.0.0",
-	"description": "Test Architect CLI",
-	"main": "index.js",
+	"private": true,
+	"description": "Local sandbox to test the Architect CLI",
 	"license": "MIT",
+	"scripts": {
+		"build:cli": "yarn --cwd .. build",
+		"architect": "node ../dist/index.js",
+		"clean": "node -e \"require('fs').rmSync('src',{recursive:true,force:true})\"",
+		"demo": "yarn clean && yarn architect atom Button && yarn architect molecule SearchBar && yarn architect container Layout && yarn architect page Home && yarn architect hook Auth && yarn architect util Format && yarn architect constant ApiV2 && yarn architect service User"
+	},
 	"dependencies": {
 		"@amphore-dev/architect": "link:..",
 		"@amphore-dev/architect-plugin-react": "^1.0.6"

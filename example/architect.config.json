@@ -1,20 +1,63 @@
 {
 	"language": "react-typescript",
-	"outputDir": "src/",
-	"plugins": ["@amphore-dev/architect-plugin-react"],
+	"outputDir": "src",
+	"plugins": [
+		"@amphore-dev/architect-plugin-react"
+	],
+	"blueprints": [
+		"architect/blueprints"
+	],
+	"builders": [
+		"architect/builders"
+	],
+	"defaultStructureItem": {
+		"caseFormat": "pascal"
+	},
 	"structure": {
 		"components": {
 			"type": "component",
 			"subdirs": {
-				"molecules": {
-					"type": "molecule",
-					"extensions": {
-						"default": "DEFAUL",
-						"index": "INDEINDEIN"
-					},
-					"generateIndex": true
-				}
-			}
+				"atoms": "atom",
+				"molecules": "molecule",
+				"organisms": "organism"
+			},
+			"generateIndex": true,
+			"generateSubIndex": true
+		},
+		"containers": {
+			"type": "container",
+			"blueprint": "component",
+			"generateIndex": true
+		},
+		"pages": {
+			"type": "page",
+			"blueprint": "component",
+			"generateIndex": true,
+			"generateSubdirs": true
+		},
+		"hooks": {
+			"type": "hook",
+			"prefix": "use",
+			"generateIndex": true
+		},
+		"utils": {
+			"type": "util",
+			"prefix": "U",
+			"generateIndex": true
+		},
+		"constants": {
+			"type": "constant",
+			"prefix": "C",
+			"caseFormat": {
+				"name": "snake-upper"
+			},
+			"generateIndex": true
+		},
+		"services": {
+			"type": "service",
+			"suffix": "Service",
+			"builder": "architect/builders/service.builder.ts",
+			"generateIndex": true
 		}
 	}
 }
