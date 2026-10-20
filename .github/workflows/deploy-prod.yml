@@ -5,22 +5,31 @@ on:
     release:
         types: [created]
 
+# OIDC (npm trusted publishing): no NPM_TOKEN secret,
+# the package is published with a short-lived token and a provenance attestation
+permissions:
+    contents: read
+    id-token: write
+
 jobs:
-    build:
+    publish:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
+
             # Setup .npmrc file to publish to npm
-            - uses: actions/setup-node@v4
+            - uses: actions/setup-node@v7
               with:
-                  node-version: "22.x"
+                  node-version: "24.x"
                   registry-url: "https://registry.npmjs.org"
                   cache: "yarn"
+
+            # trusted publishing requires npm >= 11.5.1
+            - run: npm install -g npm@latest
+
             - run: yarn install --frozen-lockfile
 
             # build & run the tests
             - run: yarn test
 
             - run: npm publish --access public
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
