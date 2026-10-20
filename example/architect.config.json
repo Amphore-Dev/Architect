@@ -1,15 +1,10 @@
 {
+	"$schema": "../schema.json",
 	"language": "react-typescript",
 	"outputDir": "src",
-	"plugins": [
-		"@amphore-dev/architect-plugin-react"
-	],
-	"blueprints": [
-		"architect/blueprints"
-	],
-	"builders": [
-		"architect/builders"
-	],
+	"plugins": ["@amphore-dev/architect-plugin-react"],
+	"blueprints": ["architect/blueprints"],
+	"builders": ["architect/builders"],
 	"defaultStructureItem": {
 		"caseFormat": "pascal"
 	},

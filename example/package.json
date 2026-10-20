@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build:cli": "yarn --cwd .. build",
-		"architect": "node ../dist/index.js",
+		"architect": "node ../dist/cli.js",
 		"clean": "node -e \"require('fs').rmSync('src',{recursive:true,force:true})\"",
 		"demo": "yarn clean && yarn architect atom Button && yarn architect molecule SearchBar && yarn architect container Layout && yarn architect page Home && yarn architect hook Auth && yarn architect util Format && yarn architect constant ApiV2 && yarn architect service User"
 	},

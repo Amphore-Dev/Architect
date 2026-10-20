@@ -1,7 +1,5 @@
-import { TBuilderArgs } from "@amphore-dev/architect";
+import { prepareBuild, TBuilderArgs } from "@amphore-dev/architect";
 import * as fs from "fs";
-
-import { prepareBuild } from "@amphore-dev/architect/dist/utils";
 
 // Custom builder, used by the "service" structure item ("builder" key in architect.config.json)
 // It replaces a custom __DATE__ placeholder in addition to __NAME__
