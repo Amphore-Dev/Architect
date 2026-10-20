@@ -1,8 +1,9 @@
-import { spawn } from "child_process";
 import * as fs from "fs";
 import path from "path";
+import { afterAll, beforeAll, expect, it, describe } from "vitest";
 
 import { SUCCESS_CODE, TEST_OUTPUT_DIR } from "../constants";
+import { runCli } from "./src/utils/UCli";
 import { getTestTypes } from "./src/utils/UTestsFoldersAndIndexes";
 
 describe("structure", () => {
@@ -16,12 +17,14 @@ describe("structure", () => {
 		OUT_DIR,
 	];
 
-	beforeAll(() => {
-		// clean out folder before tests
-		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
-	});
+	const clean = () =>
+		fs.rmSync(`${process.cwd()}/${OUT_DIR}`, {
+			recursive: true,
+			force: true,
+		});
 
-	const cliPath = path.join(__dirname, "../../dist/index.js"); // Adjust path to your built CLI
+	beforeAll(clean);
+	afterAll(clean);
 
 	/**
 	 * MOST IMPORTANTS TESTS
@@ -29,49 +32,32 @@ describe("structure", () => {
 	 */
 	const componentTypes = getTestTypes(OUT_DIR);
 	componentTypes.forEach(({ type, files }) => {
-		it(`genCheck-${type}`, (done) => {
-			spawn("node", [
-				cliPath,
+		it(`genCheck-${type}`, async () => {
+			const { code } = await runCli([
 				...DEFAULT_TESTS_ARGS,
 				type,
 				"Le_Fichier",
-			]).on("exit", (code) => {
-				try {
-					files.forEach(({ path: filePath, contain }) => {
-						const dir = path.dirname(filePath);
-						const base = path.basename(filePath);
+			]);
 
-						// Récupère tous les fichiers dans le dossier
-						const files = fs.readdirSync(dir);
+			files.forEach(({ path: filePath, contain }) => {
+				const dir = path.dirname(filePath);
+				const base = path.basename(filePath);
 
-						// Vérifie si le nom correspond exactement (case-sensitive)
-						if (!files.includes(base)) {
-							throw new Error(
-								`File "${base}" not found (wrong casing ?) in directory: ${dir}`
-							);
-						}
-						if (!fs.existsSync(filePath)) {
-							throw new Error(`File not created: ${filePath}`);
-						}
+				// Check that the name matches exactly (case-sensitive)
+				if (!fs.readdirSync(dir).includes(base)) {
+					throw new Error(
+						`File "${base}" not found (wrong casing ?) in directory: ${dir}`
+					);
+				}
 
-						if (!contain) {
-							return;
-						}
-						const content = fs.readFileSync(filePath, "utf-8");
-						expect(content).toContain(contain);
-					});
-
-					expect(code).toBe(SUCCESS_CODE); // Ensure this matches your process.exit code
-					done();
-				} catch (error) {
-					done(error);
+				if (contain) {
+					expect(fs.readFileSync(filePath, "utf-8")).toContain(
+						contain
+					);
 				}
 			});
-		});
-	});
 
-	afterAll(() => {
-		// clean out folder after tests
-		fs.rm(`${process.cwd()}/${OUT_DIR}`, { recursive: true }, () => {});
+			expect(code).toBe(SUCCESS_CODE);
+		});
 	});
 });

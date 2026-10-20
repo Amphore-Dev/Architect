@@ -1,0 +1,25 @@
+{
+	"language": "react-typescript",
+	"structure": {
+		"atoms": "atom",
+		"utils": "util",
+		"containers": {
+			"type": "container",
+			"blueprint": "atom"
+		},
+		"screens": {
+			"type": "screen",
+			"blueprint": "src/tests/src/blueprints/react/typescript/components.bp.tsx"
+		},
+		"helpers": {
+			"type": "helper",
+			"builder": "util"
+		},
+		"tools": {
+			"type": "tool",
+			"builder": "src/tests/src/builders/react/typescript/utils.tests.builder.ts"
+		}
+	},
+	"blueprints": ["src/tests/src/blueprints"],
+	"builders": ["src/tests/src/builders"]
+}

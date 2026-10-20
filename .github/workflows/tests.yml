@@ -1,0 +1,38 @@
+name: 🧪 Run Tests
+
+on:
+    pull_request:
+    push:
+        branches: [main]
+    # called by the publish workflow before publishing
+    workflow_call:
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: "22.x"
+                  cache: "yarn"
+            - run: yarn install --frozen-lockfile
+            - run: yarn lint
+            - run: yarn typecheck
+
+    test:
+        # paths, separators and symlinks differ between systems
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                node: ["22.x", "24.x"]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: ${{ matrix.node }}
+                  cache: "yarn"
+            - run: yarn install --frozen-lockfile
+            - run: yarn test

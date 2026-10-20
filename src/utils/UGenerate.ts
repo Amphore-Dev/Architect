@@ -1,150 +1,130 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { ArchitectError } from "../classes/ArchitectError";
 import { FOLDER_GENERATION_ERROR, INDEX_WRITE_ERROR } from "../constants";
-import { TConfig, TStructureItem, TStructurePathResult } from "../types";
-import { TFileExtensions } from "../types/TFileExtensions";
+import {
+	TConfig,
+	TFileExtensions,
+	TStructure,
+	TStructureEntry,
+	TStructureItem,
+	TStructurePathResult,
+} from "../types";
 import { getDefaultExtension } from "./UFiles";
-import { flatAndKeepLastChild } from "./UFlat";
-import { errorLog } from "./ULogs";
+
+/**
+ * Get the structure item matching the given folders (["components", "atoms"] -> structure.components.subdirs.atoms)
+ * Items defined as a string (type only) have no options, so undefined is returned.
+ */
+export const getStructureItem = (
+	structure: TStructure | undefined,
+	segments: string[]
+): TStructureItem | undefined => {
+	let entries: TStructure | undefined = structure;
+	let item: TStructureEntry | TStructure | undefined;
+
+	for (const segment of segments) {
+		item = entries?.[segment];
+		if (!item || typeof item !== "object") return undefined;
+		entries = (item as TStructureItem).subdirs as TStructure | undefined;
+	}
+
+	return segments.length ? (item as TStructureItem) : undefined;
+};
 
 export const generateFoldersAndIndexes = (
 	outdirPath: string,
 	config: TConfig,
 	outdir: TStructurePathResult,
-	outName: string,
 	folderName: string,
 	fileName: string
 ) => {
 	const indexes: string[] = [];
-	const segments = outdir.segments;
-	const structure = config.structure;
+	const segments = [...outdir.segments];
 
 	if (outdir.generateSubIndex || outdir.generateSubdirs) {
 		segments.push(folderName);
 	}
 
-	// Reverse the segments to start from the root
-	const revSegments = segments.slice().reverse();
-	// Flatten the structure to easily access the structure item for each segment
-	const flatStructure = flatAndKeepLastChild(structure);
 	// Create the output directory if it doesn't exist
 	try {
 		fs.mkdirSync(outdirPath, { recursive: true });
-	} catch (e) {
-		errorLog(`Error creating out directory: ${outdirPath}`, e);
-		process.exit(FOLDER_GENERATION_ERROR);
+	} catch (error) {
+		throw new ArchitectError(
+			FOLDER_GENERATION_ERROR,
+			`Error creating out directory: ${outdirPath}`,
+			"error",
+			{ cause: error }
+		);
 	}
 
 	// fallback to default structure item if no options are provided for the current segment
-	const defaultStructureItem = config?.defaultStructureItem ?? {};
+	const defaultStructureItem = config.defaultStructureItem ?? {};
 
-	// last index is used to keep track of the last index file created, so we can export it in the parent index file
-	let lastIndex = "";
+	// Path (relative to the parent folder) of what the parent index must export:
+	// the index of the current folder, or the file itself when the folder has no index
+	let exportFromParent = "";
 
-	// Loop through the segments to generate the index files
-	revSegments?.forEach((segment, index) => {
-		// Get the parent root and the current root for the current segment
-		const parentRoot = segments.slice(0, segments.length - index - 1);
-		const currentRoot = segments.slice(0, segments.length - index);
+	// Loop through the segments, from the deepest to the root, to generate the index files
+	segments
+		.slice()
+		.reverse()
+		.forEach((segment, index) => {
+			const isDeepest = index === 0;
+			// What the index of the current folder must export
+			const exportPath = isDeepest ? fileName : exportFromParent;
 
-		// generate the key for the current structure item and the parent structure item
-		const structureItemKey = currentRoot.join(".subdirs.");
-		const structureItemKeyParent = parentRoot.join(".subdirs.");
+			const currentRoot = segments.slice(0, segments.length - index);
+			const parentRoot = currentRoot.slice(0, -1);
 
-		// Get the structure item for the current segment and the parent segment
-		const parentStructureItem =
-			(flatStructure[structureItemKeyParent] as TStructureItem) ||
-			defaultStructureItem;
-		const structureItem = (flatStructure[structureItemKey] ||
-			defaultStructureItem) as TStructureItem;
+			// Options of the current and parent folders (default structure item as fallback)
+			const parentStructureItem =
+				getStructureItem(config.structure, parentRoot) ??
+				defaultStructureItem;
+			const structureItem =
+				getStructureItem(config.structure, currentRoot) ??
+				defaultStructureItem;
 
-		// Check if it should generate an index file for the current segment
+			const generateIndex =
+				structureItem.generateIndex ??
+				parentStructureItem.generateSubIndex ??
+				defaultStructureItem.generateIndex;
 
-		const generateIndex =
-			structureItem?.generateIndex ??
-			parentStructureItem?.generateSubIndex ??
-			defaultStructureItem?.generateIndex;
+			const generateSubIndex =
+				structureItem.generateSubIndex ??
+				(parentStructureItem.generateSubIndex ||
+					defaultStructureItem.generateSubIndex);
 
-		// Check if it should generate an index file for the subdirectories of the current segment
-		const generateSubIndex =
-			structureItem?.generateSubIndex ??
-			(parentStructureItem?.generateSubIndex ||
-				defaultStructureItem?.generateSubIndex);
-
-		// if it should generate an index file for the current segment
-		if (generateIndex || (index === 0 && generateSubIndex)) {
-			// Get the path to the current index file
-			const currentRootPath = path.join(
-				config.outputDir ?? "",
-				...currentRoot
-			);
-
-			// need to do this because "extenstions" is a distinc item in flatStructure (need to fix "flatAndKeepLastChild" in the future)
-			const itemExtensions =
-				structureItem.extensions ??
-				(flatStructure[`${structureItemKey}.extensions`] as
-					| string
-					| TFileExtensions);
-
-			const parentExtensions =
-				parentStructureItem.extensions ??
-				(flatStructure[`${structureItemKeyParent}.extensions`] as
-					| string
-					| TFileExtensions);
-
-			const defaultItemExtensions = defaultStructureItem?.extensions;
+			// No index in this folder: the parent exports the path through it
+			if (!generateIndex && !(isDeepest && generateSubIndex)) {
+				exportFromParent = `${segment}/${exportPath}`;
+				return;
+			}
 
 			const indexExtension =
 				getIndexExtension(
-					itemExtensions,
-					parentExtensions,
-					defaultItemExtensions
+					structureItem.extensions,
+					parentStructureItem.extensions,
+					defaultStructureItem.extensions
 				) || getDefaultExtension(config, structureItem);
 
-			const indexPath = path.join(
-				currentRootPath,
+			const indexPath = path.resolve(
+				config.outputDir ?? "",
+				...currentRoot,
 				`index${indexExtension ? `.${indexExtension}` : ""}`
 			);
 
-			let content = "";
-
-			if (index === 0) {
-				// If it's the deepest segment, export the file
-				content = `export * from "./${fileName}";`;
-			} else if (lastIndex) {
-				// If it's not the deepest segment, export the last index file created
-				content = `export * from "./${lastIndex}";`;
-			} else {
-				// if there is no last index, export the current file depending whether there is a subIndex or not
-				const exportPath =
-					folderName +
-					(!generateSubIndex
-						? "/" + fileName // if there is no subIndex, export the file directly
-						: "");
-				content = `export * from "./${exportPath}";`;
-			}
-
-			// Add the import to the index file
-			addImport(indexPath, content);
+			addImport(indexPath, `export * from "./${exportPath}";`);
 			indexes.push(indexPath);
 
-			// Update the last index
-			if (!lastIndex && !generateSubIndex) {
-				// if there is no last index and no subdirectories, set the last index to the current file
-				lastIndex = segment + "/" + fileName;
-			} else if (!lastIndex) {
-				// if there is no last index but there are subdirectories, set the last index to the folder name
-				// so the next index file can export the folder
-				// otherwise, set the last index to the file name
-				lastIndex = segment + generateSubIndex ? folderName : fileName;
-			} else {
-				lastIndex = segment;
-			}
-		} else {
-			lastIndex = segment + "/" + (!lastIndex ? fileName : lastIndex);
-		}
-	});
+			// The parent exports the index of this folder,
+			// except for the deepest folder without sub index: the file is exported directly
+			exportFromParent =
+				isDeepest && !generateSubIndex
+					? `${segment}/${fileName}`
+					: segment;
+		});
 
 	return indexes;
 };
@@ -179,24 +159,37 @@ const getIndexExtension = (
 	);
 };
 
+const EXPORT_LINE = /^export \* from ".+";$/;
+
+// Add an export line to an index file, if it's not already there
 const addImport = (path: string, content: string) => {
-	let existingContent = "";
+	let existingContent: string;
 	try {
 		existingContent = fs.readFileSync(path, "utf-8");
 	} catch {
 		existingContent = "";
 	}
-	const lines = existingContent?.split("\n").filter(Boolean);
-	const hasImport = lines?.some((line) => line.includes(content));
 
-	if (!hasImport) {
-		lines.push(content);
-		try {
-			fs.writeFileSync(path, lines.sort().join("\n"), "utf-8");
-		} catch (e) {
-			errorLog(`Error writing to file: ${path}`);
-			errorLog(e);
-			process.exit(INDEX_WRITE_ERROR);
-		}
+	const lines = existingContent.split("\n").filter(Boolean);
+	if (lines.some((line) => line.trim() === content)) {
+		return;
+	}
+
+	lines.push(content);
+
+	// Generated indexes are kept sorted, custom indexes are left untouched
+	if (lines.every((line) => EXPORT_LINE.test(line.trim()))) {
+		lines.sort();
+	}
+
+	try {
+		fs.writeFileSync(path, lines.join("\n") + "\n", "utf-8");
+	} catch (error) {
+		throw new ArchitectError(
+			INDEX_WRITE_ERROR,
+			`Error writing to file: ${path}`,
+			"error",
+			{ cause: error }
+		);
 	}
 };

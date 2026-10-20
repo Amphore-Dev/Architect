@@ -8,11 +8,15 @@ and more.
 
 ## Installation
 
+Architect requires Node.js `>= 22.12`.
+
 To install this package, use the following command:
 
 ```bash
 npm install @amphore-dev/architect --global
 ```
+
+Plugins are resolved from the project where the command is run (its `node_modules`), so they can be installed locally even if Architect is installed globally.
 
 ## Usage
 
@@ -30,9 +34,9 @@ architect molecule MyComponent
 
 ### CLI Options
 
--   `--config`: Path to a configuration file. (override `architect.config.json` config file if one is provided)
--   `--output`: Specify the output directory where files should be generated.
--   `--force`: Overwrite existing files if they already exist in the output directory.
+- `--config`: Path to a configuration file. (override `architect.config.json` config file if one is provided, the command fails if the file does not exist)
+- `--output`: Specify the output directory where files should be generated.
+- `--force`: Overwrite existing files if they already exist in the output directory, and use the first folder when a type matches several folders (no prompt).
 
 ## Configuration
 
@@ -48,14 +52,25 @@ The configuration file should be named `architect.config.json` and placed in the
 | structure            | object   | The structure of the project.                                              |
 | blueprints           | string[] | Relative paths of blueprints for generating files.                         |
 | builders             | string[] | Relative paths of builders for constructing the file and folder structure. |
-| options              | object   | Additional options for the CLI.                                            |
 | defaultStructureItem | object   | Default options for each structure item.                                   |
 | plugins              | array    | Additional plugins for the CLI.                                            |
+
+The configuration is validated when the CLI runs: unknown options are reported as warnings, invalid values stop the generation.
+A JSON schema is provided for the autocompletion and the validation in your IDE:
+
+```json
+{
+	"$schema": "./node_modules/@amphore-dev/architect/schema.json"
+}
+```
+
+(or `"https://unpkg.com/@amphore-dev/architect/schema.json"` when Architect is installed globally)
 
 Here is an example configuration file in JSON format:
 
 ```json
 {
+	"$schema": "./node_modules/@amphore-dev/architect/schema.json",
 	"outputDir": "src",
 	"blueprints": ["architect/blueprints"],
 	"builders": ["architect/builders"],
@@ -165,37 +180,66 @@ src/
 
 The structure defines the folder and file structure of the project.
 
-| Key              | Type             | Description                                                        |
-| ---------------- | ---------------- | ------------------------------------------------------------------ |
-| type             | string           | The type of the structure. (e.g., component, page, etc.)           |
-| subdirs          | object           | Subdirectories of the structure.                                   |
-| generateDir      | boolean          | Generate a directory for the structure item                        |
-| generateIndex    | boolean          | Generate an index file for the structure item                      |
-| generateSubdirs  | boolean          | Generate subdirectories for the structure item                     |
-| generateSubIndex | boolean          | Generate an index file for the structure item                      |
-| prefix           | string           | Prefix for the name of the generated files.                        |
-| suffix           | string           | Suffix for the name of the generated files.                        |
-| caseFormat       | string or object | Case format for the name of the generated folders/files/components |
-| language         | string           | The language of the item. (e.g., TypeScript, JavaScript, PHP)      |
-| extensions       | string or object | The extensions of the generated files.                             |
+| Key              | Type             | Description                                                         |
+| ---------------- | ---------------- | ------------------------------------------------------------------- |
+| type             | string           | The type of the structure. (e.g., component, page, etc.)            |
+| subdirs          | object           | Subdirectories of the structure.                                    |
+| generateIndex    | boolean          | Generate an index file for the structure item                       |
+| generateSubdirs  | boolean          | Generate subdirectories for the structure item                      |
+| generateSubIndex | boolean          | Generate an index file for the structure item                       |
+| prefix           | string           | Prefix for the name of the generated files.                         |
+| suffix           | string           | Suffix for the name of the generated files.                         |
+| caseFormat       | string or object | Case format for the name of the generated folders/files/components  |
+| preserveAcronyms | boolean          | Keep the acronyms (`API`, `HTTP`) in uppercase in camel/pascal case |
+| language         | string           | The language of the item. (e.g., TypeScript, JavaScript, PHP)       |
+| extensions       | string or object | The extensions of the generated files.                              |
+| blueprint        | string           | The type of another structure item, or a path to a blueprint file   |
+| builder          | string           | The type of another structure item, or a path to a builder file     |
+
+### Specific blueprint / builder
+
+By default, the blueprint and the builder of a structure item are found with its folder names and its type (see [Blueprints and Builders](#blueprints-and-builders)).
+The `blueprint` and `builder` keys can be used to override them, with the type of another structure item or a path to a file (relative to the project):
+
+```json
+{
+	"structure": {
+		"components": "component",
+		"containers": {
+			"type": "container",
+			"blueprint": "component",
+			"builder": "architect/builders/container.builder.ts"
+		}
+	}
+}
+```
 
 ### Case Format
 
 The case format can be a string or an object. If it is a string, it should be one of the following:
 
--   `camel`
--   `pascal`
--   `kebab`
--   `kebab-upper`
--   `snake`
--   `snake-upper`.
+- `camel`
+- `camel-upper`
+- `pascal`
+- `pascal-upper`
+- `kebab`
+- `kebab-upper`
+- `snake`
+- `snake-upper`.
+
+Words are split on case changes and non-alphanumeric characters, digits are kept (e.g. `CommandsV2` -> `commands-v2` in `kebab`, `COMMANDS_V2` in `snake-upper`).
+
+By default, each word is capitalized in camel and pascal case: `APIClient` -> `ApiClient`.
+With `"preserveAcronyms": true`, the words written in uppercase with at least 2 letters are kept as they are: `APIClient` -> `APIClient`, `myHTTPServer` -> `myHTTPServer` (camel).
+As acronyms are detected from the uppercase letters, a name fully written in uppercase (`MY_CONSTANT`) is also kept in uppercase.
 
 If it is an object, it should have the following properties: (each property is optional)
-| Key | Type | Description |
-| ---- | ------ | ---------------------------------- |
-| name | string | The name of the case format to use. |
-| file | string | The case format for file names. |
-| folder | string | The case format for folder names. |
+
+| Key    | Type   | Description                         |
+| ------ | ------ | ----------------------------------- |
+| name   | string | The name of the case format to use. |
+| file   | string | The case format for file names.     |
+| folder | string | The case format for folder names.   |
 
 ### Extensions
 
@@ -203,10 +247,15 @@ The extensions key specifies the file extensions for the generated files. It can
 If it is a string, it should be the file extension (e.g., `tsx`, `js`, `php`, etc.).
 
 If it is an object, it should have the following properties: (each property is optional)
-| Key | Type | Description |
-| ---- | ------ | ---------------------------------- |
-| default | string | The default file extension. |
-| index | string | The file extension for index files. |
+
+| Key     | Type   | Description                         |
+| ------- | ------ | ----------------------------------- |
+| default | string | The default file extension.         |
+| index   | string | The file extension for index files. |
+
+When no extension is set, the extension of the blueprint is used (`atoms.bp.tsx` -> `tsx`).
+For a language-agnostic blueprint (Architect's `default.bp`), the extension of the language is used:
+from the plugins (e.g. `react-typescript` -> `ts`), or from the end of the language (`*-typescript` -> `ts`, otherwise `js`).
 
 ### Language
 
@@ -260,8 +309,12 @@ Blueprints and builders are the core components of the CLI. They define the temp
 		     	└── default.builder.ts
 ```
 
-The name of the blueprint file should be in the following format: `<type>.bp.<ext>`, where `<type>` is the type of the blueprint
-(e.g., component, page, etc.), and `<ext>` is the file extension (e.g., tsx, php, etc.).
+The name of the blueprint file should be in the following format: `<name>.bp.<ext>`, where `<ext>` is the file extension (e.g., tsx, php, etc.)
+and `<name>` is one of the folder names of the structure item (the deepest first, e.g., `atoms`, then `components`) or its type (e.g., `atom`).
+If no file matches, a `default.bp.<ext>` file is used.
+
+The folders of the language are searched first (e.g., `react/typescript/`, then `react/`, for the `react-typescript` language),
+in the user directories, then in the plugins, then in Architect's default blueprints and builders.
 
 ### Blueprints
 
@@ -302,21 +355,37 @@ They ensure that the correct templates are applied during the generation process
 
 ```ts
 // default.builder.ts
+import { prepareBuild, TBuilderArgs } from "@amphore-dev/architect";
+import * as fs from "fs";
 
-export function defaultComponentBuilder(args: TBuilderArgs) {
+export default function defaultComponentBuilder(args: TBuilderArgs) {
 	// args are passed from the CLI and contain the necessary information for generating files
-	const { blueprint, fileOutputPath, outName, indexes } = args;
+	const { blueprint } = args;
 
-	const replacedBlueprint = blueprint.content.replace(
-		/__COMPONENT_NAME__/g,
-		outName
-	);
+	// prepareBuild resolves the output paths, checks conflicts and generates the folders and indexes
+	return prepareBuild(args).then(({ fileOutputPath, outName, indexes }) => {
+		const replacedBlueprint = blueprint.content.replace(
+			/__NAME__/g,
+			outName
+		);
 
-	fs.writeFileSync(fileOutputPath, replacedBlueprint);
+		fs.writeFileSync(fileOutputPath, replacedBlueprint);
 
-	// Return paths of generated/modified files so it can be displayed at the end
-	return [fileOutputPath, ...indexes].filter((b) => b);
+		// Return paths of generated/modified files so it can be displayed at the end
+		return [fileOutputPath, ...indexes];
+	});
 }
+```
+
+The imports of `@amphore-dev/architect` in a builder are resolved to the running CLI (they are not bundled):
+the builder uses the same version, config and plugins as the CLI, even if Architect is only installed globally.
+
+To stop the generation, a builder can throw an `ArchitectError` with an exit code:
+
+```ts
+import { ArchitectError, FILE_WRITE_ERROR } from "@amphore-dev/architect";
+
+throw new ArchitectError(FILE_WRITE_ERROR, "Something went wrong");
 ```
 
 ## Plugins
@@ -325,9 +394,9 @@ The plugins key specifies additional plugins for the CLI. Plugins can be used to
 
 ### Currently Available Plugins
 
--   [@amphore-dev/architect-plugin-react](https://www.npmjs.com/package/@amphore-dev/architect-plugin-react)
+- [@amphore-dev/architect-plugin-react](https://www.npmjs.com/package/@amphore-dev/architect-plugin-react)
 
-    | Suppprted Language        | Extensions (index / default) | Description                              |
+    | Supported Language        | Extensions (index / default) | Description                              |
     | ------------------------- | ---------------------------- | ---------------------------------------- |
     | `react`                   | `.js`/ `.jsx`                | React components.                        |
     | `react-typescript`        | `.ts`/ `.tsx`                | React components with TypeScript.        |
@@ -349,7 +418,7 @@ The plugin should have the following structure:
 │   │
 │   └── builders/
 │       ├── default.builder.<extension>
-│       ├── myCustombuilder.builder.<extension>
+│       ├── myCustomBuilder.builder.<extension>
 │       └── ...
 │
 ├── package.json
@@ -357,6 +426,22 @@ The plugin should have the following structure:
 ```
 
 `<extension>` is the file extension for the output generated files (e.g., `js`, `ts`, `php`, etc.).
+
+The plugin registers its directories in its `register` function. The paths are relative to the plugin's package root:
+
+```ts
+import { TArchitectPlugin } from "@amphore-dev/architect";
+
+const plugin: TArchitectPlugin = {
+	name: "architect-plugin-vue", // the directories are used for the languages starting with "vue"
+	register(architect) {
+		architect.registerBlueprints(); // defaults to "blueprints"
+		architect.registerBuilders("dist/builders"); // defaults to "builders"
+	},
+};
+
+export default plugin;
+```
 
 ## Contributing
 

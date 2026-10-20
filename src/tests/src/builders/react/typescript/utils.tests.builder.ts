@@ -1,8 +1,7 @@
+import { TBuilderArgs, prepareBuild } from "@amphore-dev/architect";
 import * as fs from "fs";
 import * as path from "path";
 
-import { TBuilderArgs } from "../../../../../types";
-import { prepareBuild } from "../../../../../utils";
 import { CUSTOM_UTIL_BUILDER_REPLACED } from "../../../constants/CTests";
 
 function UtilBuilder(args: TBuilderArgs) {

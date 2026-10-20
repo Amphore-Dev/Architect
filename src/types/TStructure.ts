@@ -1,25 +1,27 @@
 import { TCaseFormatConfig } from "../utils";
 import { TFileExtensions } from "./TFileExtensions";
 
-// Type de structure pour chaque élément
+// Options of a folder of the structure
 export type TStructureItem = {
-	type?: string; // Le type de l'élément (atom, molecule, directory, etc.)
-	generateDir?: boolean; // Indique si un dossier doit être généré
-	generateIndex?: boolean; // Indique si un fichier index.ts doit être généré
-	generateSubdirs?: boolean; // Indique si des sous-dossiers doivent être générés
-	generateSubIndex?: boolean; // Indique si un fichier index.ts doit être généré dans les sous-dossiers
-	subdirs?: Record<string, TStructureEntry>; // Sous-dossiers de cet élément, si applicable
-	prefix?: string; // Préfixe pour le nom de l'élément
-	suffix?: string; // Suffixe pour le nom de l'élément
-	caseFormat?: TCaseFormatConfig; // Format du nom de l'élément
-	language?: string; // Format du fichier
-	extensions?: string | TFileExtensions;
+	type?: string; // The type of the items generated in this folder (atom, molecule, page, etc.)
+	generateIndex?: boolean; // Generate an index file in this folder
+	generateSubdirs?: boolean; // Generate a folder for each generated item
+	generateSubIndex?: boolean; // Generate an index file in the subdirectories
+	subdirs?: Record<string, TStructureEntry>; // Subdirectories of this folder
+	prefix?: string; // Prefix of the generated names
+	suffix?: string; // Suffix of the generated names
+	caseFormat?: TCaseFormatConfig; // Case format of the generated names
+	preserveAcronyms?: boolean; // Keep the acronyms (API, HTTP) in uppercase in camel/pascal case
+	language?: string; // Language of this folder (overrides the project language)
+	extensions?: string | TFileExtensions; // Extension of the generated files (and indexes)
+	blueprint?: string; // Type of another structure item, or path to a blueprint file
+	builder?: string; // Type of another structure item, or path to a builder file
 };
 
-// Union pour permettre un élément soit d'être une string soit un StructureItem
+// A folder is either a type (string) or its options
 export type TStructureEntry = string | TStructureItem;
 
-// Type principal pour la structure
+// The folders of the project, by name
 export type TStructure = {
 	[key: string]: TStructureEntry | TStructure;
 };

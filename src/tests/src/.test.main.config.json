@@ -49,7 +49,6 @@
 			"subdirs": {
 				"views": {
 					"type": "view",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": false,
@@ -63,21 +62,18 @@
 				"notAnObject": "notAnObject",
 				"none": {
 					"type": "none",
-					"generateDir": false,
 					"generateIndex": false,
 					"generateSubdirs": false,
 					"generateSubIndex": false
 				},
 				"genFolder": {
 					"type": "genFolder",
-					"generateDir": true,
 					"generateIndex": false,
 					"generateSubdirs": false,
 					"generateSubIndex": false
 				},
 				"genIndexOnly": {
 					"type": "genIndexOnly",
-					"generateDir": false,
 					"generateIndex": true,
 					"generateSubdirs": false,
 					"generateSubIndex": false,
@@ -90,7 +86,6 @@
 				},
 				"folderAndIndex": {
 					"type": "folderAndIndex",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": false,
 					"generateSubIndex": false,
@@ -103,7 +98,6 @@
 				},
 				"subDir": {
 					"type": "subDir",
-					"generateDir": false,
 					"generateIndex": false,
 					"generateSubdirs": true,
 					"generateSubIndex": false,
@@ -116,7 +110,6 @@
 				},
 				"subIndexOnly": {
 					"type": "subIndexOnly",
-					"generateDir": false,
 					"generateIndex": false,
 					"generateSubdirs": false,
 					"generateSubIndex": true,
@@ -129,7 +122,6 @@
 				},
 				"subDirAndSubIndex": {
 					"type": "subDirAndSubIndex",
-					"generateDir": false,
 					"generateIndex": false,
 					"generateSubdirs": true,
 					"generateSubIndex": true,
@@ -142,7 +134,6 @@
 				},
 				"folderAndSubDir": {
 					"type": "folderAndSubDir",
-					"generateDir": true,
 					"generateIndex": false,
 					"generateSubdirs": true,
 					"generateSubIndex": false,
@@ -155,7 +146,6 @@
 				},
 				"folderAndSubIndex": {
 					"type": "folderAndSubIndex",
-					"generateDir": true,
 					"generateIndex": false,
 					"generateSubdirs": false,
 					"generateSubIndex": true,
@@ -168,7 +158,6 @@
 				},
 				"folderAndSubDirAndSubIndex": {
 					"type": "folderAndSubDirAndSubIndex",
-					"generateDir": true,
 					"generateIndex": false,
 					"generateSubdirs": true,
 					"generateSubIndex": true,
@@ -181,7 +170,6 @@
 				},
 				"indexAndSubDir": {
 					"type": "indexAndSubDir",
-					"generateDir": false,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": false,
@@ -194,7 +182,6 @@
 				},
 				"indexAndSubIndex": {
 					"type": "indexAndSubIndex",
-					"generateDir": false,
 					"generateIndex": true,
 					"generateSubdirs": false,
 					"generateSubIndex": true,
@@ -207,7 +194,6 @@
 				},
 				"indexAndSubDirAndSubIndex": {
 					"type": "indexAndSubDirAndSubIndex",
-					"generateDir": false,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": true,
@@ -220,7 +206,6 @@
 				},
 				"folderAndIndexAndSubDir": {
 					"type": "folderAndIndexAndSubDir",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": false,
@@ -233,7 +218,6 @@
 				},
 				"folderAndIndexAndSubIndex": {
 					"type": "folderAndIndexAndSubIndex",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": false,
 					"generateSubIndex": true,
@@ -246,7 +230,6 @@
 				},
 				"folderAndIndexAndSubDirAndSubIndex": {
 					"type": "folderAndIndexAndSubDirAndSubIndex",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": true,
@@ -259,7 +242,6 @@
 				},
 				"nested": {
 					"type": "nested",
-					"generateDir": true,
 					"generateIndex": true,
 					"generateSubdirs": true,
 					"generateSubIndex": true,
@@ -272,7 +254,6 @@
 					"subdirs": {
 						"nested2": {
 							"type": "nested2",
-							"generateDir": true,
 							"generateIndex": true,
 							"generateSubdirs": true,
 							"generateSubIndex": true,
@@ -285,7 +266,6 @@
 							"subdirs": {
 								"nested3": {
 									"type": "nested3",
-									"generateDir": false,
 									"generateIndex": false,
 									"generateSubdirs": false,
 									"generateSubIndex": false,
@@ -298,7 +278,6 @@
 									"subdirs": {
 										"ultraNested": {
 											"type": "ultraNested",
-											"generateDir": true,
 											"generateIndex": false,
 											"generateSubdirs": false,
 											"generateSubIndex": false,
@@ -311,7 +290,6 @@
 										},
 										"ultraNestedWithIndex": {
 											"type": "ultraNestedWithIndex",
-											"generateDir": true,
 											"generateIndex": true,
 											"generateSubdirs": true,
 											"generateSubIndex": true,
@@ -331,8 +309,7 @@
 				"screens": "screen",
 				"conflicts": "conflic",
 				"conflicts2": "conflic"
-			},
-			"generateDir": true
+			}
 		}
 	},
 	"defaultStructureItem": {

@@ -1,20 +1,23 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
+import globals from "globals";
 import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+
 import prettier from "eslint-config-prettier";
 
 export default [
-  {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
-  {ignores: ["**/blueprints/**", "**/dist/**", "**/node_modules/**", "**/examples/**", "**/tests/src/builders/**"]},
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  {"settings": {
-    react: {
-      version: '^18.3.0'
-    },
-  }},
-  prettier,
+	{ files: ["**/*.{js,mjs,cjs,ts}"] },
+	{
+		ignores: [
+			"**/blueprints/**",
+			"**/dist/**",
+			"**/node_modules/**",
+			"example/**",
+			"testsDist/**",
+			"**/tests/src/builders/**",
+		],
+	},
+	{ languageOptions: { globals: globals.node } },
+	pluginJs.configs.recommended,
+	...tseslint.configs.recommended,
+	prettier,
 ];
