@@ -43,7 +43,7 @@
 		"@amphore-dev/architect-plugin-react": "^1.0.6",
 		"@eslint/js": "^10.0.1",
 		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
-		"@types/node": "^24.19.2",
+		"@types/node": "^26.6.5",
 		"eslint": "^10.13.0",
 		"eslint-config-prettier": "^10.1.8",
 		"globals": "^17.13.0",
