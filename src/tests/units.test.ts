@@ -1,3 +1,4 @@
+import path from "path";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -118,7 +119,7 @@ describe("isValidName", () => {
 });
 
 describe("generatePluginPaths", () => {
-	const dir = "/plugin";
+	const dir = path.join(path.sep, "plugin");
 
 	it("is used when the language starts with the plugin namespace", () => {
 		expect(
@@ -126,7 +127,11 @@ describe("generatePluginPaths", () => {
 				namespace: ["react"],
 				path: dir,
 			})
-		).toEqual(["/plugin/native/typescript", "/plugin/native", "/plugin"]);
+		).toEqual([
+			path.join(dir, "native", "typescript"),
+			path.join(dir, "native"),
+			dir,
+		]);
 	});
 
 	it("is ignored for other languages", () => {
