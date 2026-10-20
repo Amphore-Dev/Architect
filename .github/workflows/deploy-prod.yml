@@ -24,16 +24,24 @@ jobs:
         steps:
             - uses: actions/checkout@v7
 
-            # registry-url is required for Trusted Publishing (npm's canonical example).
-            # NODE_AUTH_TOKEN must NOT be set, it would break the OIDC handshake.
+            # Install & build without registry-url: setup-node would write an .npmrc
+            # containing ${NODE_AUTH_TOKEN}, and yarn 1 fails when this variable is
+            # not set ("Failed to replace env in config"). It is never set with OIDC.
             - uses: actions/setup-node@v7
               with:
                   node-version: "22.x"
-                  registry-url: "https://registry.npmjs.org"
                   cache: "yarn"
 
             - run: yarn install --frozen-lockfile
             - run: yarn build
+
+            # registry-url is required for Trusted Publishing (npm's canonical example).
+            # NODE_AUTH_TOKEN must NOT be set, it would break the OIDC handshake.
+            # Only npm runs after this step, so the .npmrc does not affect yarn.
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: "22.x"
+                  registry-url: "https://registry.npmjs.org"
 
             # setup-node negotiates the OIDC handshake, but npm itself
             # still needs to be >=11.5.1 to use the resulting credential —
