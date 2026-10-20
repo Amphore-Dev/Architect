@@ -1,50 +1,62 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import ContextClass from "../classes/ContextClass";
-import { DEFAULT_CONFIG, INVALID_CONFIG_FILE } from "../constants";
+import {
+	DEFAULT_CONFIG,
+	DEFAULT_CONFIG_FILE,
+	INVALID_CONFIG_FILE,
+} from "../constants";
 import { TConfig, TOptions } from "../types";
 import { errorLog, infoLog } from "./ULogs";
 import { mergeObjects } from "./UObjects";
 
-export function loadConfig(
-	_configPath: string = "architect.config.json",
-	options: TOptions = {}
-): TConfig {
-	const plugins = ContextClass.getPlugins();
+/**
+ * Read the user config file.
+ * Fails if the file is invalid, or if a custom config file (-c) does not exist.
+ */
+export function readUserConfig(options: TOptions = {}): TConfig {
+	const configPath = options.config ?? DEFAULT_CONFIG_FILE;
+	const absolutePath = path.resolve(process.cwd(), configPath);
 
-	// reduce all plugins.config to a single object
-	const pluginConfigs = plugins.reduce((acc, plugin) => {
-		return { ...acc, ...plugin.config };
-	}, {});
-
-	const configPath = path.resolve(process.cwd(), _configPath);
-
-	if (fs.existsSync(configPath)) {
-		try {
-			const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-
-			return mergeObjects<TConfig>(
-				DEFAULT_CONFIG,
-				pluginConfigs,
-				userConfig,
-				{ options },
-				{
-					outputDir:
-						options.output ??
-						userConfig.outputDir ??
-						DEFAULT_CONFIG.outputDir ??
-						"",
-				}
-			);
-		} catch {
-			errorLog(`Error parsing config file '${_configPath}'`);
+	if (!fs.existsSync(absolutePath)) {
+		if (options.config) {
+			errorLog(`Config file '${configPath}' not found`);
 			process.exit(INVALID_CONFIG_FILE);
 		}
-	} else {
-		infoLog(
-			`Config file '${_configPath}' not found. Using default config.`
-		);
-		return DEFAULT_CONFIG;
+		infoLog(`Config file '${configPath}' not found. Using default config.`);
+		return {};
 	}
+
+	try {
+		return JSON.parse(fs.readFileSync(absolutePath, "utf-8"));
+	} catch {
+		errorLog(`Error parsing config file '${configPath}'`);
+		process.exit(INVALID_CONFIG_FILE);
+	}
+}
+
+/**
+ * Merge the default config, the plugins configs, the user config and the CLI options
+ */
+export function buildConfig(
+	userConfig: TConfig = {},
+	options: TOptions = {},
+	pluginConfigs: (TConfig | undefined)[] = []
+): TConfig {
+	const config = mergeObjects<TConfig>(
+		DEFAULT_CONFIG,
+		...pluginConfigs,
+		userConfig,
+		{ options }
+	);
+
+	config.outputDir = options.output ?? config.outputDir ?? "";
+	return config;
+}
+
+export function loadConfig(
+	options: TOptions = {},
+	pluginConfigs: (TConfig | undefined)[] = []
+): TConfig {
+	return buildConfig(readUserConfig(options), options, pluginConfigs);
 }

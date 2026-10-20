@@ -14,6 +14,8 @@ export type TStructureItem = {
 	caseFormat?: TCaseFormatConfig; // Format du nom de l'élément
 	language?: string; // Format du fichier
 	extensions?: string | TFileExtensions;
+	blueprint?: string; // Type d'un autre élément de structure ou chemin vers un blueprint
+	builder?: string; // Type d'un autre élément de structure ou chemin vers un builder
 };
 
 // Union pour permettre un élément soit d'être une string soit un StructureItem

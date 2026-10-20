@@ -1,6 +1,5 @@
+import confirm from "@inquirer/confirm";
 import * as fs from "fs";
-import inquirer from "inquirer";
-import { Answers } from "inquirer/dist/cjs/types/types";
 import logger from "node-color-log";
 
 import Context from "../classes/ContextClass";
@@ -8,38 +7,26 @@ import { CPLUGIN_PREFIX, DEFAULT_LANGUAGE } from "../constants";
 import { TConfig, TStructureItem } from "../types";
 import { TFileExtensions } from "../types/TFileExtensions";
 
-export const checkFileConflict = (path: string): Promise<boolean> => {
+// Ask the user if an existing file should be overwritten
+export const checkFileConflict = async (path: string): Promise<boolean> => {
 	if (!fs.existsSync(path)) {
-		return Promise.resolve(true);
+		return true;
 	}
-	const outdirProm = inquirer
-		.prompt([
-			{
-				type: "list",
-				message: () => {
-					logger
-						.color("yellow")
-						.append("[Warning]")
-						.reset()
-						.append(" - File already exists at ")
-						.color("cyan")
-						.append(`${path.replace(process.cwd() + "/", "")}`)
-						.log();
-					return "Do you want to overwrite the file?";
-				},
-				choices: ["Yes", "No"],
-				name: "overwrite",
-				default: "No",
-			},
-		] as Answers)
-		.then((answers) => {
-			if (answers.overwrite === "Yes") {
-				return Promise.resolve(true);
-			}
-			return Promise.reject(false);
-		});
 
-	return outdirProm;
+	logger
+		.color("yellow")
+		.append("[Warning]")
+		.reset()
+		.append(" - File already exists at ")
+		.color("cyan")
+		.append(`${path.replace(process.cwd() + "/", "")}`)
+		.log();
+
+	// a closed input (non-interactive shell) is considered as a "No"
+	return confirm({
+		message: "Do you want to overwrite the file?",
+		default: false,
+	}).catch(() => false);
 };
 
 export const getFileLanguage = (
@@ -53,8 +40,7 @@ export const getDefaultExtension = (
 	config: TConfig,
 	structureItem?: TStructureItem
 ): string => {
-	const language =
-		structureItem?.language ?? config.language ?? DEFAULT_LANGUAGE;
+	const language = getFileLanguage(config, structureItem);
 
 	const plugins = Context.getPlugins();
 

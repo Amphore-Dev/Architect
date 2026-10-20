@@ -4,6 +4,8 @@ export const SUCCESS_CODE = 0;
 /*
  * Errors
  */
+export const UNEXPECTED_ERROR = 1;
+
 export const INVALID_CONFIG_FILE = 10;
 export const INVALID_COMPONENT_TYPE = 11;
 export const NO_BLUEPRINT_FOUND = 12;

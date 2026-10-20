@@ -1,7 +1,6 @@
 #!/usr/bin/env node
+import select from "@inquirer/select";
 import { Command } from "commander";
-import inquirer from "inquirer";
-import { Answers } from "inquirer/dist/cjs/types/types";
 
 import { version } from "../package.json";
 import Context from "./classes/ContextClass";
@@ -11,16 +10,95 @@ import {
 	NO_BLUEPRINT_FOUND,
 	NO_BUILDER_FOUND,
 	SUCCESS_CODE,
+	UNEXPECTED_ERROR,
 } from "./constants";
-import { TOptions } from "./types";
+import { TBuilderImport, TOptions, TStructurePathResult } from "./types";
 import {
 	errorLog,
-	resolveStructurePath,
-	successEndLog,
 	getBlueprintPath,
 	getBuilderPath,
-	compileAndLoadUserTsFile,
+	loadBuilder,
+	resolveStructurePath,
+	successEndLog,
 } from "./utils";
+
+// Used when there is no structure in the config: the file is generated in the output directory
+const DEFAULT_OUTDIR: TStructurePathResult = {
+	type: "default",
+	segments: ["default"],
+	path: "/",
+};
+
+const selectOutdir = async (
+	componentType: string,
+	outdirs: TStructurePathResult[]
+): Promise<TStructurePathResult> => {
+	if (outdirs.length === 1) {
+		return outdirs[0];
+	}
+
+	return select({
+		message: `Multiple matches found for '${componentType}' type. Please select a directory.`,
+		choices: outdirs.map((outdir) => ({
+			name: outdir.segments.join("/"),
+			value: outdir,
+		})),
+	});
+};
+
+const generate = async (
+	componentType: string,
+	componentName: string,
+	options: TOptions
+) => {
+	const config = Context.init(options);
+
+	let outdir = DEFAULT_OUTDIR;
+	if (config.structure) {
+		const outdirs = resolveStructurePath(
+			config.structure,
+			componentType,
+			config.defaultStructureItem
+		);
+
+		if (outdirs.length === 0) {
+			errorLog(`Invalid component type: ${componentType}`);
+			process.exit(INVALID_COMPONENT_TYPE);
+		}
+		outdir = await selectOutdir(componentType, outdirs);
+	}
+
+	const blueprint = getBlueprintPath(config, outdir);
+	if (!blueprint) {
+		errorLog(`No blueprint found for "${componentType}" type`);
+		process.exit(NO_BLUEPRINT_FOUND);
+	}
+
+	const builderPath = getBuilderPath(config, outdir);
+	if (!builderPath) {
+		errorLog(`No builder found for "${componentType}" type`);
+		process.exit(NO_BUILDER_FOUND);
+	}
+
+	let builder: TBuilderImport;
+	try {
+		builder = await loadBuilder(builderPath);
+	} catch (error) {
+		errorLog("Failed to load builder", error);
+		process.exit(BUILDER_LOAD_ERROR);
+	}
+
+	const files = await builder.default({
+		name: componentName,
+		config,
+		outdir,
+		type: outdir.segments[outdir.segments.length - 1],
+		blueprint,
+	});
+
+	successEndLog(files);
+	process.exit(SUCCESS_CODE);
+};
 
 const program = new Command();
 
@@ -38,96 +116,11 @@ program
 		"Skip prompts, overwrite existing files and use default values"
 	)
 	.option("-o, --output <path>", "Specify the output directory")
-	.action(
-		async (
-			componentType: string,
-			componentName: string,
-			options: TOptions
-		) => {
-			const config = await Context.init(options);
-			const outdirs = resolveStructurePath(
-				config.structure ?? {
-					[componentType]: componentType,
-				},
-				componentType,
-				config.defaultStructureItem
-			);
-
-			let outdirProm = Promise.resolve(outdirs[0]);
-			if (outdirs.length === 0 && config.structure) {
-				errorLog(`Invalid component type: ${componentType}`);
-				process.exit(INVALID_COMPONENT_TYPE);
-			} else if (!config.structure) {
-				outdirProm = Promise.resolve({
-					type: "default",
-					segments: ["default"],
-					path: "/",
-				});
-			}
-
-			if (outdirs.length > 1) {
-				outdirProm = inquirer
-					.prompt([
-						{
-							type: "list",
-							name: "outdir",
-							message: `Multiple matches found for '${componentType}' type. Please select a directory.`,
-							choices: outdirs.map((outdir) => ({
-								name: outdir.segments.join("/"),
-								value: outdir,
-							})),
-						},
-					] as Answers)
-					.then((answers) => answers.outdir);
-			}
-
-			outdirProm
-				.then((outdir) => {
-					const paths = [...outdir.segments].reverse();
-					const blueprint = getBlueprintPath(paths, config, outdir);
-
-					if (!blueprint) {
-						errorLog(
-							`No blueprint found for "${componentType}" type`
-						);
-						process.exit(NO_BLUEPRINT_FOUND);
-					}
-
-					const builderPath = getBuilderPath(paths, config, outdir);
-
-					if (!builderPath) {
-						errorLog(
-							`No builder found for "${componentType}" type`
-						);
-						process.exit(NO_BUILDER_FOUND);
-					}
-
-					const prom = builderPath.isCustom
-						? compileAndLoadUserTsFile(builderPath.path)
-						: import(builderPath.path);
-
-					return prom.then(
-						(builder) =>
-							builder.default({
-								name: componentName,
-								config,
-								outdir: outdir,
-								type: outdir.segments[
-									outdir.segments.length - 1
-								],
-								blueprint,
-							}),
-						() => {
-							errorLog("Failed to load builder");
-							process.exit(BUILDER_LOAD_ERROR);
-						}
-					);
-				})
-				.then((files: string[]) => {
-					successEndLog(files);
-					process.exit(SUCCESS_CODE);
-				});
-		}
+	.action((componentType: string, componentName: string, options: TOptions) =>
+		generate(componentType, componentName, options).catch((error) => {
+			errorLog(error);
+			process.exit(UNEXPECTED_ERROR);
+		})
 	);
 
 program.parse(process.argv);

@@ -6,19 +6,49 @@ export type TCaseFormat =
 	| "pascal"
 	| "kebab"
 	| "snake"
+	| "camel-upper"
+	| "pascal-upper"
 	| "kebab-upper"
 	| "snake-upper";
 
 export type TFomatType = "folder" | "file" | "name";
 
-export type TCaseFormatConfigOption = Record<TFomatType, TCaseFormat>;
+export type TCaseFormatConfigOption = Partial<Record<TFomatType, TCaseFormat>>;
 
 export type TCaseFormatConfig = TCaseFormat | TCaseFormatConfigOption;
 
-type TFormat = {
-	name: TCaseFormat;
-	formatter: (name: string) => string;
+const FORMATTERS: Record<string, (words: string[]) => string> = {
+	// Lowercase first word, capitalize subsequent words
+	camel: (words) =>
+		words
+			.map((word, index) =>
+				index === 0 ? word.toLowerCase() : ucFirst(word)
+			)
+			.join(""),
+	// Capitalize the first letter of each word
+	pascal: (words) => words.map(ucFirst).join(""),
+	kebab: (words) => words.join("-").toLowerCase(),
+	snake: (words) => words.join("_").toLowerCase(),
 };
+
+/**
+ * Split a name into words:
+ * "testWithCase" -> ["test", "With", "Case"]
+ * "CommandsV2" -> ["Commands", "V2"]
+ * "HTTPServer" -> ["HTTP", "Server"]
+ * "le_fichier-name" -> ["le", "fichier", "name"]
+ */
+export const splitWords = (name: string): string[] =>
+	name
+		// split before an uppercase letter preceded by a lowercase letter or a digit
+		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+		// split acronyms followed by a word (HTTPServer -> HTTP Server)
+		.replace(/([A-Z])([A-Z][a-z])/g, "$1 $2")
+		// replace every non-alphanumeric character with a space
+		.replace(/[^a-zA-Z0-9]+/g, " ")
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean);
 
 export const formatName = (
 	name: string,
@@ -26,70 +56,30 @@ export const formatName = (
 	type?: TFomatType,
 	fallback?: TCaseFormat
 ): string => {
-	if (!format && !fallback) return name;
-
-	const split = name // 1. sépare avant une majuscule (sauf au tout début)
-		.replace(/([a-z])([A-Z])/g, "$1 $2")
-		// 2. remplace tout non-alpha par un espace
-		.replace(/[^a-zA-Z]+/g, " ")
-		// 3. coupe en morceaux
-		.trim()
-		.split(/\s+/);
-
-	const formats: TFormat[] = [
-		{
-			name: "camel",
-			formatter: () =>
-				split
-					.map(
-						(word, index) =>
-							index === 0 ? word.toLowerCase() : ucFirst(word) // Lowercase first word, capitalize subsequent words
-					)
-					.join(""),
-		},
-		{
-			name: "pascal",
-			formatter: () =>
-				split
-					.map(ucFirst) // Capitalize the first letter of each group
-					.join(""), // Join all parts together
-		},
-		{
-			name: "kebab",
-			formatter: () => split.join("-").toLowerCase(), // Join with hyphens
-		},
-		{
-			name: "snake",
-			formatter: () => split.join("_").toLowerCase(),
-		},
-	];
-
 	const formatName = getCaseFormatName(format, type, fallback);
+	// "kebab-upper" -> formatter "kebab" + modifier "upper"
+	const [base, modifier] = formatName.split("-");
+	const formatter = FORMATTERS[base];
 
-	const formatter = formats.find(
-		(f) => f.name === formatName || formatName.indexOf(f.name + "-") > -1
-	)?.formatter;
-	const formattedName = formatter ? formatter(name) : name;
+	if (!formatter) return name;
 
-	if (formatName.indexOf("-upper") > -1) {
-		return formattedName.toUpperCase();
-	}
-	return formattedName;
+	const formattedName = formatter(splitWords(name));
+	return modifier === "upper" ? formattedName.toUpperCase() : formattedName;
 };
 
 export const getCaseFormatName = (
 	format?: TCaseFormatConfig,
 	type?: TFomatType,
 	fallback?: TCaseFormat
-) => {
+): string => {
 	if (!format) {
-		return "";
+		return fallback ?? "";
 	}
 	if (typeof format === "string") {
 		return format;
 	}
 
-	return type && format[type]
-		? format[type]
-		: format.file || format.folder || fallback || "";
+	return (
+		(type && format[type]) || format.file || format.folder || fallback || ""
+	);
 };

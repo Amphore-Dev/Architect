@@ -1,5 +1,3 @@
-import * as fs from "fs";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import logger from "node-color-log";
 
@@ -35,29 +33,4 @@ export const successEndLog = (paths: string[]) => {
 	});
 
 	log.log();
-};
-
-/**
- * Log to a file (used for debugging)
- */
-
-const logPath = __dirname + "/../../logs.txt";
-
-export const fsLog = (...message: any) => {
-	// get the current content of the log file
-	let content = "";
-	if (fs.existsSync(logPath)) {
-		content = fs.readFileSync(logPath, "utf8");
-	}
-
-	// append the new message
-	content +=
-		message.map((a: any) => JSON.stringify(a, null, 2)).join(" ") + "\n";
-
-	// write the new content to the log file
-	fs.writeFileSync(logPath, content);
-};
-
-export const clearFsLog = () => {
-	fs.writeFileSync(logPath, "");
 };

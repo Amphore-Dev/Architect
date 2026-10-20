@@ -1,53 +1,63 @@
 import esbuild from "esbuild";
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
+import Context from "../classes/ContextClass";
 import {
 	TBuilderImport,
 	TConfig,
 	TImportPathResult,
-	TStructureItem,
+	TPluginDirectory,
+	TPluginDirectoryType,
+	TStructurePathResult,
 } from "../types";
 import { getFileLanguage } from "./UFiles";
+import { resolveStructurePath } from "./UStructure";
 
-export function compileAndLoadUserTsFile(userTsFilePath: string) {
+/**
+ * Compile a custom builder (TypeScript or JavaScript) with esbuild and load it.
+ * The compiled file is written in a temporary directory, so it works when Architect is installed globally.
+ */
+export async function compileAndLoadUserTsFile(
+	userTsFilePath: string
+): Promise<TBuilderImport> {
 	const absolutePath = path.resolve(process.cwd(), userTsFilePath);
-	const outputDir = path.resolve(__dirname, "../compiled");
+	const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), "architect-"));
 	const outputFile = path.join(outputDir, "compiled.js");
 
-	// Ensure the output directory exists
-	if (!fs.existsSync(outputDir)) {
-		fs.mkdirSync(outputDir);
+	try {
+		await esbuild.build({
+			entryPoints: [absolutePath],
+			outfile: outputFile,
+			bundle: true,
+			platform: "node",
+			format: "cjs",
+			target: "node22",
+			logLevel: "silent",
+		});
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		return require(outputFile);
+	} finally {
+		fs.rmSync(outputDir, { recursive: true, force: true });
 	}
-
-	const prom = new Promise<TBuilderImport>((resolve, reject) => {
-		// Compile the TypeScript file to JavaScript using esbuild
-		esbuild
-			.build({
-				entryPoints: [absolutePath],
-				outfile: outputFile,
-				bundle: true,
-				platform: "node",
-				format: "cjs",
-				target: "es2020",
-				write: true,
-			})
-			.then(() => {
-				// Dynamically import the compiled JavaScript file
-				const compiledModule = import(outputFile);
-
-				compiledModule.then((module) => {
-					resolve(module);
-					return module;
-				}, reject);
-
-				return compiledModule;
-			}, reject);
-	});
-
-	return prom;
 }
 
+export function loadBuilder(
+	builder: TImportPathResult
+): Promise<TBuilderImport> {
+	if (builder.isCustom) {
+		return compileAndLoadUserTsFile(builder.path);
+	}
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	return Promise.resolve().then(() => require(builder.path));
+}
+
+/**
+ * Search the first file matching one of the names in the given directories.
+ * For each directory, the names are checked in order, then a "default" file.
+ * (A file name is matched without its extensions: "atoms.bp.tsx" -> "atoms")
+ */
 export function getImportPaths<T>({
 	paths,
 	defaultPath,
@@ -61,82 +71,136 @@ export function getImportPaths<T>({
 	onSuccess: (module: TImportPathResult) => T;
 	defaultImport?: T;
 }): T | undefined {
-	const _paths = [...paths, defaultPath];
-	const matches = [] as TImportPathResult[];
+	const names = [...pathSegments.map((s) => s.toLowerCase()), "default"];
 
-	_paths.forEach((filePath) => {
-		if (!fs.existsSync(filePath)) {
-			return;
-		}
-		const files = fs.readdirSync(filePath);
+	for (const filePath of [...paths, defaultPath]) {
+		if (!fs.existsSync(filePath)) continue;
 
-		pathSegments.forEach((segment, i) => {
-			let matchingFile = files.find((file) => {
-				const fileName = file.replace(/\..+$/, "");
-				return fileName.toLowerCase() === segment.toLowerCase();
-			});
+		const files = fs
+			.readdirSync(filePath, { withFileTypes: true })
+			.filter((file) => file.isFile())
+			.map((file) => file.name);
 
-			if (!matchingFile && i === pathSegments.length - 1) {
-				matchingFile = files.find((file) => {
-					const fileName = file.replace(/\..+$/, "");
-					return fileName === "default";
+		for (const name of names) {
+			const matchingFile = files.find(
+				(file) => file.replace(/\..+$/, "").toLowerCase() === name
+			);
+
+			if (matchingFile) {
+				return onSuccess({
+					filePath,
+					path: path.join(filePath, matchingFile),
+					name: matchingFile,
+					isCustom: !filePath.startsWith(defaultPath),
 				});
 			}
-
-			const fullPath = filePath + "/" + matchingFile;
-
-			if (matchingFile && !matches.find((m) => m.path === fullPath)) {
-				const res: TImportPathResult = {
-					filePath,
-					path: fullPath,
-					name: matchingFile,
-					isCustom: !filePath.includes(defaultPath),
-				};
-				matches.push(res);
-			}
-		});
-	});
-
-	if (matches.length === 0) {
-		return defaultImport || undefined;
+		}
 	}
 
-	return onSuccess(matches[0]);
+	return defaultImport;
 }
 
+/**
+ * Generate the paths for each part of the language, from the deepest to the base path
+ * ("react-typescript", "/bp") -> ["/bp/react/typescript", "/bp/react"]
+ */
 export const generateFormatPaths = (
-	format: string,
+	format: string | string[],
 	basePath: string
 ): string[] => {
-	const formatParts = format.split("-");
+	const formatParts = Array.isArray(format) ? format : format.split("-");
 
-	// Generate all possible paths by progressively adding format parts
-	const paths = formatParts.reduce<string[]>((acc, part, index) => {
-		const _path = path.join(basePath, ...formatParts.slice(0, index + 1));
-		acc.push(_path);
-		return acc;
-	}, []);
-
-	// Sort the paths by length in descending order
-	paths.sort((a, b) => b.length - a.length);
-	return paths;
+	return formatParts
+		.map((_, index) =>
+			path.join(basePath, ...formatParts.slice(0, index + 1))
+		)
+		.reverse();
 };
 
+// Language paths of each custom directory, followed by the directory itself
 export const generateCustomPaths = (
-	config: TConfig,
-	paths?: string[],
-	outdir?: TStructureItem
-): string[] => {
-	const ret = [] as string[];
-
-	if (!paths) {
-		return ret;
-	}
-
-	paths.forEach((file) => {
-		ret.push(...generateFormatPaths(getFileLanguage(config, outdir), file));
-		ret.push(file);
+	language: string,
+	paths: string[] = []
+): string[] =>
+	paths.flatMap((dir) => {
+		const absoluteDir = path.resolve(process.cwd(), dir);
+		return [...generateFormatPaths(language, absoluteDir), absoluteDir];
 	});
 
-	return ret;
+/**
+ * A plugin directory is used only if the language starts with the plugin namespace.
+ * Plugin "react" + language "react-typescript" -> ["<plugin>/typescript", "<plugin>"]
+ */
+export const generatePluginPaths = (
+	language: string,
+	{ namespace, path: dir }: TPluginDirectory
+): string[] => {
+	const languageParts = language.split("-");
+
+	if (!namespace.every((part, i) => languageParts[i] === part)) {
+		return [];
+	}
+	return [
+		...generateFormatPaths(languageParts.slice(namespace.length), dir),
+		dir,
+	];
+};
+
+/**
+ * All the directories to search for a blueprint/builder, by priority:
+ * user directories, plugins directories, then Architect's default directory
+ */
+export const getSearchPaths = (
+	type: TPluginDirectoryType,
+	config: TConfig,
+	outdir: TStructurePathResult,
+	defaultPath: string
+): string[] => {
+	const language = getFileLanguage(config, outdir);
+
+	return [
+		...generateCustomPaths(language, config[type]),
+		...Context.getPluginDirectories(type).flatMap((dir) =>
+			generatePluginPaths(language, dir)
+		),
+		...generateFormatPaths(language, defaultPath),
+	];
+};
+
+/**
+ * Names used to find a blueprint/builder for a structure item, by priority:
+ * the folders (deepest first), then the type.
+ * If a reference (TStructureItem.blueprint/builder) is the type of another structure item,
+ * the names of that item are used instead.
+ */
+export const getLookupNames = (
+	config: TConfig,
+	outdir: TStructurePathResult,
+	reference?: string
+): string[] => {
+	let item: TStructurePathResult | undefined = outdir;
+
+	if (reference) {
+		item = config.structure
+			? resolveStructurePath(config.structure, reference)[0]
+			: undefined;
+
+		if (!item) return [reference];
+	}
+
+	const names = [...item.segments].reverse();
+	if (item.type && !names.includes(item.type)) {
+		names.push(item.type);
+	}
+	return names;
+};
+
+// Returns the absolute path if the reference is an existing file
+export const resolveFileReference = (reference?: string) => {
+	if (!reference) return undefined;
+
+	const absolutePath = path.resolve(process.cwd(), reference);
+	return fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()
+		? absolutePath
+		: undefined;
 };
