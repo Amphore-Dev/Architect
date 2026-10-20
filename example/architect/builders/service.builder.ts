@@ -1,6 +1,6 @@
+import { TBuilderArgs } from "@amphore-dev/architect";
 import * as fs from "fs";
 
-import { TBuilderArgs } from "@amphore-dev/architect";
 import { prepareBuild } from "@amphore-dev/architect/dist/utils";
 
 // Custom builder, used by the "service" structure item ("builder" key in architect.config.json)
