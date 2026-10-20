@@ -443,6 +443,19 @@ const plugin: TArchitectPlugin = {
 export default plugin;
 ```
 
+## Development
+
+The repository uses Yarn 4 (the release is committed in `.yarn/releases`), with Node.js `>= 22.12`:
+
+```bash
+corepack enable    # once, uses the yarn version of the package.json
+yarn install
+yarn test          # build + tests
+yarn lint && yarn typecheck
+```
+
+The `example` folder is a local sandbox using the build of the repository (see `example/README.md`).
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.

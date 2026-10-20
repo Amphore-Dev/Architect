@@ -18,9 +18,7 @@
 		"./schema.json": "./schema.json",
 		"./package.json": "./package.json"
 	},
-	"bin": {
-		"architect": "dist/cli.js"
-	},
+	"bin": "dist/cli.js",
 	"scripts": {
 		"start": "node dist/cli.js",
 		"build": "tsc -p tsconfig.build.json && yarn copy-blueprints",
@@ -73,5 +71,6 @@
 	"files": [
 		"dist",
 		"schema.json"
-	]
+	],
+	"packageManager": "yarn@4.14.1"
 }
