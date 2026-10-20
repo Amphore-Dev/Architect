@@ -26,13 +26,22 @@ jobs:
 
             # registry-url is required for Trusted Publishing (npm's canonical example).
             # NODE_AUTH_TOKEN must NOT be set, it would break the OIDC handshake.
+            # registry-url IS required here — npm's own canonical Trusted
+            # Publishing example keeps it (docs.npmjs.com/trusted-publishers).
+            # NODE_AUTH_TOKEN must NOT be set, it would break the OIDC handshake.
+            # yarn 4 does not read the .npmrc written by setup-node (yarn 1 did,
+            # and failed on the unset ${NODE_AUTH_TOKEN}).
             - uses: actions/setup-node@v7
               with:
                   node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
-                  cache: "yarn"
 
-            - run: yarn install --frozen-lockfile
+            - name: Install Yarn 4.14.1
+              run: |
+                  corepack enable
+                  corepack prepare yarn@4.14.1 --activate
+
+            - run: yarn install --immutable
             - run: yarn build
 
             # setup-node negotiates the OIDC handshake, but npm itself
