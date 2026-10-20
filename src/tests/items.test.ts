@@ -61,7 +61,7 @@ describe("structure item blueprint & builder", () => {
 		const { code } = await runCli([...ARGS, "helper", "Format"]);
 
 		expectFileContent(
-			OUT_DIR + "/helpers/Format.js",
+			OUT_DIR + "/helpers/Format.ts",
 			CUSTOM_UTIL_BUILDER_REPLACED
 		);
 		expect(code).toBe(SUCCESS_CODE);
@@ -71,7 +71,7 @@ describe("structure item blueprint & builder", () => {
 		const { code } = await runCli([...ARGS, "tool", "Hammer"]);
 
 		expectFileContent(
-			OUT_DIR + "/tools/Hammer.js",
+			OUT_DIR + "/tools/Hammer.ts",
 			CUSTOM_UTIL_BUILDER_REPLACED
 		);
 		expect(code).toBe(SUCCESS_CODE);

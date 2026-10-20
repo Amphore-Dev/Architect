@@ -1,0 +1,9 @@
+{
+	"structure": {
+		"atoms": {
+			"type": "atom",
+			"caseFormat": "PascalCase",
+			"generateIndx": true
+		}
+	}
+}

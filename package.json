@@ -9,12 +9,20 @@
 	"license": "MIT",
 	"description": "A CLI tool to generate files and folders based on blueprints",
 	"main": "dist/index.js",
-	"types": "dist/declarations/types/index.d.ts",
+	"types": "dist/declarations/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/declarations/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./schema.json": "./schema.json",
+		"./package.json": "./package.json"
+	},
 	"bin": {
-		"architect": "dist/index.js"
+		"architect": "dist/cli.js"
 	},
 	"scripts": {
-		"start": "node dist/index.js",
+		"start": "node dist/cli.js",
 		"build": "tsc -p tsconfig.build.json && yarn copy-blueprints",
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
@@ -63,6 +71,7 @@
 		"node": ">=22.12.0"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"schema.json"
 	]
 }

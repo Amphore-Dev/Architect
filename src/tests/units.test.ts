@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { buildConfig, formatName, mergeObjects } from "../utils";
+import {
+	buildConfig,
+	formatName,
+	getBlueprintExtension,
+	getDefaultExtension,
+	mergeObjects,
+	validateConfig,
+} from "../utils";
 import { isValidName } from "../utils/UBuilders";
 import { generatePluginPaths } from "../utils/UImports";
 
@@ -24,6 +31,24 @@ describe("formatName", () => {
 		expect(formatName("myName", format, "name")).toBe("MY_NAME");
 		expect(formatName("myName", format, "file")).toBe("my-name");
 		expect(formatName("myName", format, "folder")).toBe("my-name");
+	});
+
+	it("keeps the acronyms with preserveAcronyms", () => {
+		const options = { preserveAcronyms: true };
+
+		expect(formatName("APIClient", "pascal")).toBe("ApiClient");
+		expect(
+			formatName("APIClient", "pascal", undefined, undefined, options)
+		).toBe("APIClient");
+		expect(
+			formatName("myHTTPServer", "camel", undefined, undefined, options)
+		).toBe("myHTTPServer");
+		expect(
+			formatName("APIClient", "camel", undefined, undefined, options)
+		).toBe("apiClient");
+		expect(
+			formatName("APIClient", "kebab", undefined, undefined, options)
+		).toBe("api-client");
 	});
 
 	it("uses the fallback when there is no format", () => {
@@ -108,5 +133,74 @@ describe("generatePluginPaths", () => {
 		expect(
 			generatePluginPaths("vue", { namespace: ["react"], path: dir })
 		).toEqual([]);
+	});
+});
+
+describe("extensions", () => {
+	it.each([
+		["javascript", "js"],
+		["typescript", "ts"],
+		["react-typescript", "ts"],
+		["react-native-typescript", "ts"],
+		["vue", "js"],
+	])("default extension of %s is %s", (language, extension) => {
+		expect(getDefaultExtension({ language })).toBe(extension);
+	});
+
+	it.each([
+		["atoms.bp.tsx", "tsx"],
+		["default.bp", ""],
+		["component.vue", "vue"],
+	])("extension of the blueprint %s is '%s'", (name, extension) => {
+		expect(getBlueprintExtension(name)).toBe(extension);
+	});
+});
+
+describe("validateConfig", () => {
+	it("accepts a valid config", () => {
+		expect(
+			validateConfig({
+				$schema: "./node_modules/@amphore-dev/architect/schema.json",
+				language: "react-typescript",
+				plugins: ["@amphore-dev/architect-plugin-react"],
+				defaultStructureItem: { caseFormat: "pascal" },
+				structure: {
+					atoms: "atom",
+					constants: {
+						type: "constant",
+						caseFormat: { name: "snake-upper" },
+						extensions: { default: "ts", index: "ts" },
+						subdirs: { nested: { type: "nested" } },
+					},
+				},
+			})
+		).toEqual([]);
+	});
+
+	it("warns about unknown options", () => {
+		expect(
+			validateConfig({
+				structure: { a: { type: "a", generateDir: true } },
+			})
+		).toEqual([
+			{
+				path: "structure.a.generateDir",
+				message: "unknown option (ignored)",
+				level: "warning",
+			},
+		]);
+	});
+
+	it("fails on invalid values", () => {
+		const issues = validateConfig({
+			plugins: "plugin",
+			structure: { a: 3, b: { caseFormat: "PASCAL" } },
+		});
+
+		expect(issues.map(({ path, level }) => [path, level])).toEqual([
+			["plugins", "error"],
+			["structure.a", "error"],
+			["structure.b.caseFormat", "error"],
+		]);
 	});
 });

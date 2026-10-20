@@ -8,7 +8,8 @@ import {
 	TPluginDirectories,
 	TPluginDirectoryType,
 } from "../types";
-import { errorLog, infoLog } from "../utils/ULogs";
+import { infoLog } from "../utils/ULogs";
+import { ArchitectError } from "./ArchitectError";
 
 class ArchitectPlugin implements TArchitectPluginAPI {
 	config = {};
@@ -42,11 +43,10 @@ class ArchitectPlugin implements TArchitectPluginAPI {
 		const absolutePath = path.resolve(this.root, sourcePath);
 
 		if (!fs.existsSync(absolutePath)) {
-			errorLog(
-				`Error registering ${type} for "${this.plugin.name}" plugin\n\n`,
-				`Directory not found: ${absolutePath}`
+			throw new ArchitectError(
+				PLUGIN_REGISTER_ERROR,
+				`Error registering ${type} for "${this.plugin.name}" plugin: directory not found (${absolutePath})`
 			);
-			process.exit(PLUGIN_REGISTER_ERROR);
 		}
 
 		this.directories[type] = {

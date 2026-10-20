@@ -1,14 +1,16 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { ArchitectError } from "../classes/ArchitectError";
 import {
 	DEFAULT_CONFIG,
 	DEFAULT_CONFIG_FILE,
 	INVALID_CONFIG_FILE,
 } from "../constants";
 import { TConfig, TOptions } from "../types";
-import { errorLog, infoLog } from "./ULogs";
+import { infoLog, warningLog } from "./ULogs";
 import { mergeObjects } from "./UObjects";
+import { TConfigIssue, validateConfig } from "./UValidation";
 
 /**
  * Read the user config file.
@@ -20,20 +22,49 @@ export function readUserConfig(options: TOptions = {}): TConfig {
 
 	if (!fs.existsSync(absolutePath)) {
 		if (options.config) {
-			errorLog(`Config file '${configPath}' not found`);
-			process.exit(INVALID_CONFIG_FILE);
+			throw new ArchitectError(
+				INVALID_CONFIG_FILE,
+				`Config file '${configPath}' not found`
+			);
 		}
 		infoLog(`Config file '${configPath}' not found. Using default config.`);
 		return {};
 	}
 
+	let userConfig: TConfig;
 	try {
-		return JSON.parse(fs.readFileSync(absolutePath, "utf-8"));
-	} catch {
-		errorLog(`Error parsing config file '${configPath}'`);
-		process.exit(INVALID_CONFIG_FILE);
+		userConfig = JSON.parse(fs.readFileSync(absolutePath, "utf-8"));
+	} catch (error) {
+		throw new ArchitectError(
+			INVALID_CONFIG_FILE,
+			`Error parsing config file '${configPath}'`,
+			"error",
+			{ cause: error }
+		);
 	}
+
+	checkConfig(userConfig, configPath);
+	return userConfig;
 }
+
+// Log the unknown options, fail on invalid values
+const checkConfig = (config: TConfig, configPath: string) => {
+	const issues = validateConfig(config);
+	const format = ({ path, message }: TConfigIssue) =>
+		`${path || "config"}: ${message}`;
+
+	issues
+		.filter(({ level }) => level === "warning")
+		.forEach((issue) => warningLog(`${configPath} - ${format(issue)}`));
+
+	const errors = issues.filter(({ level }) => level === "error");
+	if (errors.length) {
+		throw new ArchitectError(
+			INVALID_CONFIG_FILE,
+			`Invalid config file '${configPath}':\n${errors.map((e) => "  • " + format(e)).join("\n")}`
+		);
+	}
+};
 
 /**
  * Merge the default config, the plugins configs, the user config and the CLI options

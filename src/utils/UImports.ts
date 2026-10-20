@@ -15,6 +15,36 @@ import {
 import { getFileLanguage } from "./UFiles";
 import { resolveStructurePath } from "./UStructure";
 
+// Root of the running Architect package (dist/utils -> package root)
+const ARCHITECT_ROOT = path.join(__dirname, "..", "..");
+
+/**
+ * Imports of "@amphore-dev/architect" in a custom builder are not bundled:
+ * they point to the running Architect, so the builder uses the same instance (config, plugins, version),
+ * even if Architect is not installed in the project (global install).
+ */
+const architectExternalPlugin: esbuild.Plugin = {
+	name: "architect-external",
+	setup(build) {
+		build.onResolve(
+			{ filter: /^@amphore-dev\/architect(\/.*)?$/ },
+			({ path: importPath }) => {
+				const subPath = importPath.replace(
+					"@amphore-dev/architect",
+					""
+				);
+
+				return {
+					path: subPath
+						? path.join(ARCHITECT_ROOT, subPath)
+						: path.join(ARCHITECT_ROOT, "dist", "index.js"),
+					external: true,
+				};
+			}
+		);
+	},
+};
+
 /**
  * Compile a custom builder (TypeScript or JavaScript) with esbuild and load it.
  * The compiled file is written in a temporary directory, so it works when Architect is installed globally.
@@ -35,6 +65,7 @@ export async function compileAndLoadUserTsFile(
 			format: "cjs",
 			target: "node22",
 			logLevel: "silent",
+			plugins: [architectExternalPlugin],
 		});
 		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		return require(outputFile);

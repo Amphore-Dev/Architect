@@ -11,22 +11,42 @@ export type TCaseFormat =
 	| "kebab-upper"
 	| "snake-upper";
 
-export type TFomatType = "folder" | "file" | "name";
+export type TFormatType = "folder" | "file" | "name";
 
-export type TCaseFormatConfigOption = Partial<Record<TFomatType, TCaseFormat>>;
+export type TCaseFormatConfigOption = Partial<Record<TFormatType, TCaseFormat>>;
 
 export type TCaseFormatConfig = TCaseFormat | TCaseFormatConfigOption;
 
-const FORMATTERS: Record<string, (words: string[]) => string> = {
+export type TFormatNameOptions = {
+	// keep the acronyms (words in uppercase) as they are in camel and pascal case
+	preserveAcronyms?: boolean;
+};
+
+// A word written in uppercase with at least 2 letters: "API", "HTTP", "V2X"
+export const isAcronym = (word: string) =>
+	/^[A-Z0-9]+$/.test(word) && /[A-Z].*[A-Z]/.test(word);
+
+const FORMATTERS: Record<
+	string,
+	(words: string[], options: TFormatNameOptions) => string
+> = {
 	// Lowercase first word, capitalize subsequent words
-	camel: (words) =>
+	camel: (words, { preserveAcronyms }) =>
 		words
-			.map((word, index) =>
-				index === 0 ? word.toLowerCase() : ucFirst(word)
-			)
+			.map((word, index) => {
+				if (index === 0) return word.toLowerCase();
+				return preserveAcronyms && isAcronym(word)
+					? word
+					: ucFirst(word);
+			})
 			.join(""),
 	// Capitalize the first letter of each word
-	pascal: (words) => words.map(ucFirst).join(""),
+	pascal: (words, { preserveAcronyms }) =>
+		words
+			.map((word) =>
+				preserveAcronyms && isAcronym(word) ? word : ucFirst(word)
+			)
+			.join(""),
 	kebab: (words) => words.join("-").toLowerCase(),
 	snake: (words) => words.join("_").toLowerCase(),
 };
@@ -53,8 +73,9 @@ export const splitWords = (name: string): string[] =>
 export const formatName = (
 	name: string,
 	format?: TCaseFormatConfig,
-	type?: TFomatType,
-	fallback?: TCaseFormat
+	type?: TFormatType,
+	fallback?: TCaseFormat,
+	options: TFormatNameOptions = {}
 ): string => {
 	const formatName = getCaseFormatName(format, type, fallback);
 	// "kebab-upper" -> formatter "kebab" + modifier "upper"
@@ -63,13 +84,13 @@ export const formatName = (
 
 	if (!formatter) return name;
 
-	const formattedName = formatter(splitWords(name));
+	const formattedName = formatter(splitWords(name), options);
 	return modifier === "upper" ? formattedName.toUpperCase() : formattedName;
 };
 
 export const getCaseFormatName = (
 	format?: TCaseFormatConfig,
-	type?: TFomatType,
+	type?: TFormatType,
 	fallback?: TCaseFormat
 ): string => {
 	if (!format) {

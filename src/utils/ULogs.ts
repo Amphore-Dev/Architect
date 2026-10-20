@@ -1,5 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import logger from "node-color-log";
+import path from "path";
+
+// Path relative to the current directory when it is inside it (works with any path separator)
+export const displayPath = (filePath: string) => {
+	const relativePath = path.relative(process.cwd(), filePath);
+	return relativePath &&
+		!relativePath.startsWith("..") &&
+		!path.isAbsolute(relativePath)
+		? relativePath
+		: filePath;
+};
 
 const genArgs = (args: any) => {
 	return [args?.length ? "-" : "", ...args];
@@ -24,12 +35,12 @@ export const successEndLog = (paths: string[]) => {
 		.color("yellow")
 		.append(`Updated ${paths.length} file${paths.length > 1 ? "s" : ""}:`);
 
-	paths.forEach((path) => {
+	paths.forEach((filePath) => {
 		log.reset()
 			.color("blue")
 			.append("\n• ")
 			.color("cyan")
-			.append(path.replace(process.cwd() + "/", ""));
+			.append(displayPath(filePath));
 	});
 
 	log.log();

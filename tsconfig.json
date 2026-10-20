@@ -15,5 +15,10 @@
 		"types": ["node"]
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules", "dist", "src/blueprints/**/*"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/blueprints/**/*",
+		"src/tests/src/builders/**/*"
+	]
 }

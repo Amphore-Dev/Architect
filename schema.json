@@ -1,0 +1,154 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://unpkg.com/@amphore-dev/architect/schema.json",
+	"title": "Architect configuration",
+	"description": "Configuration of the Architect CLI (architect.config.json)",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": "string",
+			"description": "Path or URL of this JSON schema"
+		},
+		"outputDir": {
+			"type": "string",
+			"description": "The root directory where files are generated"
+		},
+		"language": {
+			"type": "string",
+			"description": "The language of the project (e.g. javascript, react-typescript). Languages are provided by plugins"
+		},
+		"structure": {
+			"$ref": "#/definitions/structure"
+		},
+		"defaultStructureItem": {
+			"$ref": "#/definitions/structureItem",
+			"description": "Default options for each structure item"
+		},
+		"blueprints": {
+			"type": "array",
+			"items": { "type": "string" },
+			"description": "Paths of the custom blueprints directories (relative to the project)"
+		},
+		"builders": {
+			"type": "array",
+			"items": { "type": "string" },
+			"description": "Paths of the custom builders directories (relative to the project)"
+		},
+		"plugins": {
+			"type": "array",
+			"items": { "type": "string" },
+			"description": "Plugins packages to load (e.g. @amphore-dev/architect-plugin-react)"
+		}
+	},
+	"additionalProperties": false,
+	"definitions": {
+		"caseFormat": {
+			"type": "string",
+			"enum": [
+				"camel",
+				"camel-upper",
+				"pascal",
+				"pascal-upper",
+				"kebab",
+				"kebab-upper",
+				"snake",
+				"snake-upper"
+			]
+		},
+		"caseFormatConfig": {
+			"description": "Case format of the generated names, for all of them or for each kind (name, file, folder)",
+			"oneOf": [
+				{ "$ref": "#/definitions/caseFormat" },
+				{
+					"type": "object",
+					"properties": {
+						"name": { "$ref": "#/definitions/caseFormat" },
+						"file": { "$ref": "#/definitions/caseFormat" },
+						"folder": { "$ref": "#/definitions/caseFormat" }
+					},
+					"additionalProperties": false
+				}
+			]
+		},
+		"extensions": {
+			"description": "Extension of the generated files, for all of them or for the files and the indexes",
+			"oneOf": [
+				{ "type": "string" },
+				{
+					"type": "object",
+					"properties": {
+						"default": { "type": "string" },
+						"index": { "type": "string" }
+					},
+					"additionalProperties": false
+				}
+			]
+		},
+		"structure": {
+			"type": "object",
+			"description": "The folders of the project, by name",
+			"additionalProperties": { "$ref": "#/definitions/structureEntry" }
+		},
+		"structureEntry": {
+			"oneOf": [
+				{
+					"type": "string",
+					"description": "The type of the items generated in this folder"
+				},
+				{ "$ref": "#/definitions/structureItem" }
+			]
+		},
+		"structureItem": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"description": "The type of the items generated in this folder (e.g. component, page)"
+				},
+				"subdirs": {
+					"$ref": "#/definitions/structure",
+					"description": "Subdirectories of this folder"
+				},
+				"generateIndex": {
+					"type": "boolean",
+					"description": "Generate an index file in this folder"
+				},
+				"generateSubdirs": {
+					"type": "boolean",
+					"description": "Generate a folder for each generated item"
+				},
+				"generateSubIndex": {
+					"type": "boolean",
+					"description": "Generate an index file in the subdirectories"
+				},
+				"prefix": {
+					"type": "string",
+					"description": "Prefix of the generated names"
+				},
+				"suffix": {
+					"type": "string",
+					"description": "Suffix of the generated names"
+				},
+				"caseFormat": { "$ref": "#/definitions/caseFormatConfig" },
+				"preserveAcronyms": {
+					"type": "boolean",
+					"description": "Keep the words written in uppercase (e.g. API, HTTP) as they are in camel and pascal case"
+				},
+				"language": {
+					"type": "string",
+					"description": "The language of this folder, overrides the project language"
+				},
+				"extensions": { "$ref": "#/definitions/extensions" },
+				"blueprint": {
+					"type": "string",
+					"description": "The type of another structure item, or a path to a blueprint file"
+				},
+				"builder": {
+					"type": "string",
+					"description": "The type of another structure item, or a path to a builder file"
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}

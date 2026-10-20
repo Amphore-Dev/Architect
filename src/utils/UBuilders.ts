@@ -1,8 +1,8 @@
 import * as path from "path";
 
+import { ArchitectError } from "../classes/ArchitectError";
 import {
 	FILE_CONFLICT,
-	FOLDER_GENERATION_ERROR,
 	INVALID_FOLDER_STRUCTURE,
 	INVALID_NAME_FORMAT,
 } from "../constants";
@@ -21,7 +21,6 @@ import {
 	getSearchPaths,
 	resolveFileReference,
 } from "./UImports";
-import { errorLog, infoLog } from "./ULogs";
 import { formatName } from "./UStrings";
 
 const DEFAULT_BUILDERS_PATH = path.join(__dirname, "..", "builders");
@@ -68,22 +67,28 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 	const { config, name, blueprint, type, outdir } = args;
 
 	if (!isValidName(name)) {
-		errorLog(
-			"Name should start with a letter or an underscore and should not contain path separators or special characters"
+		return Promise.reject(
+			new ArchitectError(
+				INVALID_NAME_FORMAT,
+				"Name should start with a letter or an underscore and should not contain path separators or special characters"
+			)
 		);
-		process.exit(INVALID_NAME_FORMAT);
 	}
 
 	if (!outdir) {
-		errorLog(
-			`No valid folder structure found for type "${type}" in the configuration.`
+		return Promise.reject(
+			new ArchitectError(
+				INVALID_FOLDER_STRUCTURE,
+				`No valid folder structure found for type "${type}" in the configuration.`
+			)
 		);
-		process.exit(INVALID_FOLDER_STRUCTURE);
 	}
 
 	const genName = (formatType: "folder" | "file" | "name") =>
 		(outdir.prefix ?? "") +
-		formatName(name, outdir.caseFormat, formatType) +
+		formatName(name, outdir.caseFormat, formatType, undefined, {
+			preserveAcronyms: outdir.preserveAcronyms,
+		}) +
 		(outdir.suffix ?? "");
 
 	const folderName = genName("folder");
@@ -98,12 +103,13 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 		outdir.generateSubdirs || outdir.generateSubIndex ? folderName : ""
 	);
 
+	// A language-agnostic blueprint has no extension, the language's default extension is used
 	const fileExtension =
 		typeof outdir.extensions === "string"
 			? outdir.extensions
-			: (outdir.extensions?.default ??
-				blueprint.extension ??
-				getDefaultExtension(config));
+			: outdir.extensions?.default ||
+				blueprint.extension ||
+				getDefaultExtension(config, outdir);
 
 	// Construct the output file path based on the directory and file name
 	const fileOutputPath = path.join(
@@ -117,23 +123,20 @@ export const prepareBuild = (args: TBuilderArgs): Promise<TBuildPaths> => {
 
 	return conflictCheck.then((overwrite) => {
 		if (!overwrite) {
-			infoLog("File already exists, skipping");
-			process.exit(FILE_CONFLICT);
+			throw new ArchitectError(
+				FILE_CONFLICT,
+				"File already exists, skipping",
+				"info"
+			);
 		}
 
-		let indexes: string[] = [];
-		try {
-			indexes = generateFoldersAndIndexes(
-				outdirPath,
-				config,
-				outdir,
-				folderName,
-				fileName
-			);
-		} catch (e) {
-			errorLog(e);
-			process.exit(FOLDER_GENERATION_ERROR);
-		}
+		const indexes = generateFoldersAndIndexes(
+			outdirPath,
+			config,
+			outdir,
+			folderName,
+			fileName
+		);
 		return {
 			outdirPath,
 			fileOutputPath,

@@ -14,7 +14,7 @@ export const BUILDER_LOAD_ERROR = 14;
 export const INVALID_NAME_FORMAT = 15;
 export const INVALID_FOLDER_STRUCTURE = 16;
 export const FILE_CONFLICT = 17;
-export const BUILD_PREPRAION_ERROR = 18;
+export const BUILD_PREPARATION_ERROR = 18;
 
 export const FOLDER_GENERATION_ERROR = 20;
 export const INDEX_WRITE_ERROR = 21;

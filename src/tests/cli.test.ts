@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import path from "path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { version } from "../../package.json";
@@ -85,6 +86,37 @@ describe("cli-tests", () => {
 		expect(code).toBe(INVALID_COMPONENT_TYPE);
 	});
 
+	it("should fail on invalid config values", async () => {
+		const { code, stderr } = await runCli([
+			"-c",
+			__dirname + "/src/.test.invalid.values.config.json",
+			"atom",
+			"Test",
+		]);
+		expect(code).toBe(INVALID_CONFIG_FILE);
+		expect(stderr).toContain("structure.atoms.caseFormat");
+		expect(stderr).toContain("structure.atoms.generateIndx");
+	});
+
+	it("should use the first match with --force when a type matches several folders", async () => {
+		const { code } = await runCli([
+			...DEFAULT_TESTS_ARGS,
+			"-f",
+			"conflic",
+			"FORCE_SELECT_TEST",
+		]);
+		expect(code).toBe(SUCCESS_CODE);
+	});
+
+	it("should not run the CLI when imported as a library", () => {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const lib = require(path.join(__dirname, "../../dist/index.js"));
+
+		expect(typeof lib.prepareBuild).toBe("function");
+		expect(typeof lib.formatName).toBe("function");
+		expect(typeof lib.ArchitectError).toBe("function");
+	});
+
 	it("should reject names containing a path", async () => {
 		const { code } = await runCli([
 			...DEFAULT_TESTS_ARGS,
@@ -118,7 +150,7 @@ describe("cli-tests", () => {
 			...DEFAULT_TESTS_ARGS,
 			"-f",
 			"atom",
-			"COMPONENT_OVERRITE_TEST",
+			"COMPONENT_OVERWRITE_TEST",
 		];
 
 		expect((await runCli(args)).code).toBe(SUCCESS_CODE);

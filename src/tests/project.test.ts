@@ -36,7 +36,7 @@ describe("project", () => {
 		fs.symlinkSync(
 			path.join(process.cwd(), "node_modules", PLUGIN_NAME),
 			pluginDir,
-			"dir"
+			"junction" // works on Windows without admin rights
 		);
 	};
 

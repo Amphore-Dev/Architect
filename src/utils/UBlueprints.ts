@@ -13,6 +13,10 @@ import {
 
 const DEFAULT_BLUEPRINTS_PATH = path.join(__dirname, "..", "blueprints");
 
+// "atoms.bp.tsx" -> "tsx", a language-agnostic blueprint ("default.bp") has no extension
+export const getBlueprintExtension = (name: string) =>
+	name.endsWith(".bp") ? "" : path.extname(name).replace(".", "");
+
 const readBlueprint = (
 	blueprintPath: string,
 	isCustom: boolean
@@ -23,7 +27,7 @@ const readBlueprint = (
 		path: blueprintPath,
 		name,
 		content: fs.readFileSync(blueprintPath, "utf8"),
-		extension: path.extname(name).replace(".", ""),
+		extension: getBlueprintExtension(name),
 		isCustom,
 	};
 };

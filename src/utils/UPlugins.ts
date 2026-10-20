@@ -2,10 +2,11 @@ import fs from "fs";
 import { createRequire } from "module";
 import path from "path";
 
+import { ArchitectError } from "../classes/ArchitectError";
 import ArchitectPlugin from "../classes/PluginApiClass";
 import { CPLUGIN_PREFIX, PLUGIN_LOAD_ERROR } from "../constants";
 import { TArchitectPlugin, TLoadedPlugin } from "../types";
-import { errorLog, warningLog } from "./ULogs";
+import { warningLog } from "./ULogs";
 
 /**
  * Resolve a plugin entry point.
@@ -55,11 +56,12 @@ export function loadNpmPlugins(pluginsList: string[] = []): TLoadedPlugin[] {
 			plugin = pluginModule.default ?? pluginModule;
 			root = findPackageRoot(entryPoint);
 		} catch (error) {
-			errorLog(
-				`Failed to load plugin "${packageName}":`,
-				(error as Error).message
+			throw new ArchitectError(
+				PLUGIN_LOAD_ERROR,
+				`Failed to load plugin "${packageName}"`,
+				"error",
+				{ cause: error }
 			);
-			process.exit(PLUGIN_LOAD_ERROR);
 		}
 
 		if (!plugin?.name) {

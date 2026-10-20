@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import path from "path";
 
-export const CLI_PATH = path.join(__dirname, "../../../../dist/index.js");
+export const CLI_PATH = path.join(__dirname, "../../../../dist/cli.js");
 
 export type TCliResult = {
 	code: number | null;

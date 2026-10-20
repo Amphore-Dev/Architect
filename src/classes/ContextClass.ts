@@ -8,22 +8,15 @@ import {
 import { buildConfig, readUserConfig } from "../utils/UConfig";
 import { loadNpmPlugins } from "../utils/UPlugins";
 
-// Custom builders are bundled with their own copy of Architect,
-// the instance is stored globally so they share the CLI's context (config & plugins)
-const CONTEXT_KEY = Symbol.for("@amphore-dev/architect/context");
-const globalStore = globalThis as unknown as Record<
-	symbol,
-	Context | undefined
->;
-
 class Context {
+	private static instance: Context;
 	private plugins: TLoadedPlugin[] = [];
 	private config: TConfig = {};
 
 	private constructor() {} // Private constructor to prevent instantiation
 
 	public static getInstance(): Context {
-		return (globalStore[CONTEXT_KEY] ??= new Context());
+		return (Context.instance ??= new Context());
 	}
 
 	/**
