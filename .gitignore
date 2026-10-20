@@ -10,3 +10,4 @@ logs.txt
 /plugins
 .DEV*
 architect.config.json
+testsDist
