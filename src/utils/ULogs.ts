@@ -16,19 +16,19 @@ const genArgs = (args: any) => {
 	return [args?.length ? "-" : "", ...args];
 };
 
-export const errorLog = (...args: any) =>
-	logger.color("red").log("[Error]", ...genArgs(args));
+export const errorLog = (...args: any): void =>
+	void logger.color("red").log("[Error]", ...genArgs(args));
 
-export const infoLog = (...args: any) =>
-	logger.color("blue").log("[Info]", ...genArgs(args));
+export const infoLog = (...args: any): void =>
+	void logger.color("blue").log("[Info]", ...genArgs(args));
 
-export const warningLog = (...args: any) =>
-	logger.color("yellow").log("[Warning]", ...genArgs(args));
+export const warningLog = (...args: any): void =>
+	void logger.color("yellow").log("[Warning]", ...genArgs(args));
 
-export const successLog = (...args: any) =>
-	logger.color("green").log("[Success]", ...genArgs(args));
+export const successLog = (...args: any): void =>
+	void logger.color("green").log("[Success]", ...genArgs(args));
 
-export const successEndLog = (paths: string[]) => {
+export const successEndLog = (paths: string[]): void => {
 	const log = logger
 		.color("green")
 		.log("\n[Success]")
